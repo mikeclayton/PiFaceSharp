@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Kingsland.PiFaceSharp.Native;
+using Kingsland.PiFaceSharp.Spi.Native;
 
 namespace Kingsland.PiFaceSharp.Spi
 {
