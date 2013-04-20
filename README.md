@@ -9,6 +9,7 @@ The library can be used to write C# applications that run using Mono on the Rasp
 Example
 =======
 
+    // get reference to default piface device
     var piface = new PiFace();
     
     // toggle each output pin on and off 50 times
@@ -24,9 +25,9 @@ Example
     }
     
     // read the current state of each input pin
-    for(byte i = 0; i < 8; i++)
+    for(byte pin = 0; pin < 8; i++)
     {
-        Console.Write(piface.GetInputPinState(i) + " ");
+        Console.Write(piface.GetInputPinState(pin) + " ");
     }
 
 
