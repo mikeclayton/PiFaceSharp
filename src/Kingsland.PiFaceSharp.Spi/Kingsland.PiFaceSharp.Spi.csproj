@@ -49,9 +49,8 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Mono.Posix.dll</HintPath>
+    <Reference Include="Mono.Posix">
+      <HintPath>..\..\lib\mono-2.10.9\Mono.Posix.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
