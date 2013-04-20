@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using Kingsland.PiFaceSharp.Native;
 
-namespace Kingsland.PiFaceSharp
+namespace Kingsland.PiFaceSharp.Spi
 {
 
     /// <summary>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kingsland.PiFaceSharp", "Kingsland.PiFaceSharp\Kingsland.PiFaceSharp.csproj", "{B1E5E004-64EA-401D-9DC7-0F0EE6504345}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kingsland.PiFaceSharp.Spi", "Kingsland.PiFaceSharp.Spi\Kingsland.PiFaceSharp.Spi.csproj", "{B1E5E004-64EA-401D-9DC7-0F0EE6504345}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

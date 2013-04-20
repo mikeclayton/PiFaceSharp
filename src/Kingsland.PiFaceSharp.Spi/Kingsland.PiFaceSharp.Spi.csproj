@@ -8,8 +8,8 @@
     <ProjectGuid>{B1E5E004-64EA-401D-9DC7-0F0EE6504345}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Kingsland.PiFaceSharp</RootNamespace>
-    <AssemblyName>Kingsland.PiFaceSharp</AssemblyName>
+    <RootNamespace>Kingsland.PiFaceSharp.Spi</RootNamespace>
+    <AssemblyName>Kingsland.PiFaceSharp.Spi</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

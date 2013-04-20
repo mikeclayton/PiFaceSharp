@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Kingsland.PiFaceSharp.Native
+namespace Kingsland.PiFaceSharp.Spi.Native
 {
 
     /// <summary>
