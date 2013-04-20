@@ -9,25 +9,25 @@ The library can be used to write C# applications that run using Mono on the Rasp
 Example
 =======
 
-var piface = new PiFace();
-
-// toggle each output pin on and off 50 times
-for (byte pin = 0; pin < 8; pin++)
-{
-    var state = true;
-    for (var i = 0; i < 50; i++ )
+    var piface = new PiFace();
+    
+    // toggle each output pin on and off 50 times
+    for (byte pin = 0; pin < 8; pin++)
     {
-        piface.SetOutputPinState(pin, state);
-        System.Threading.Thread.Sleep(25);
-        state = !state;
+        var state = true;
+        for (var i = 0; i < 50; i++ )
+        {
+            piface.SetOutputPinState(pin, state);
+            System.Threading.Thread.Sleep(25);
+            state = !state;
+        }
     }
-}
-
-// read the current state of each input pin
-for(byte i = 0; i < 8; i++)
-{
-    Console.Write(piface.GetInputPinState(i) + " ");
-}
+    
+    // read the current state of each input pin
+    for(byte i = 0; i < 8; i++)
+    {
+        Console.Write(piface.GetInputPinState(i) + " ");
+    }
 
 
 License
