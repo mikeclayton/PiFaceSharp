@@ -57,12 +57,24 @@ namespace Kingsland.PiFaceSharp.Spi
         private const byte CMD_WRITE = 0x40;
         private const byte CMD_READ = 0x41;
 
+        private enum PullUpMode
+        {
+            Off = 0,
+            PullDown = 1,
+            PullUp = 2
+        }
+
         #endregion
+
+        #region Fields
 
         private UInt32 m_SpiMode = 0;
         private UInt32 m_SpiBPW = 8;
         private UInt32 m_SpiSpeed = 5000000;
         private UInt16 m_SpiDelay = 0;
+        private PullUpMode m_PortBPullUpMode;
+
+        #endregion
 
         #region Constructors
 
@@ -119,6 +131,29 @@ namespace Kingsland.PiFaceSharp.Spi
         {
             get;
             set;
+        }
+
+        private PullUpMode PortBPullUpMode
+        {
+            get
+            {
+                return m_PortBPullUpMode;
+            }
+            set
+            {
+                switch(value)
+                {
+                    case PullUpMode.PullUp:
+                        this.WriteByte(GPPUB, 0xFF);
+                        break;
+                    case PullUpMode.PullDown:
+                        this.WriteByte(GPPUB, 0x00);
+                        break;
+                    default:
+                        throw new System.ArgumentOutOfRangeException("value");
+                }
+                m_PortBPullUpMode = value;
+            }
         }
 
         #endregion
@@ -223,10 +258,26 @@ namespace Kingsland.PiFaceSharp.Spi
             return bufOut[2];
         }
 
+        public bool GetOutputPinState(byte pin)
+        {
+            var mask = (byte)(1 << pin);
+            var state = this.ReadByte(GPIOA);
+            this.OutputPinBuffer = state;
+            return (state & mask) == mask;
+        }
+
         public bool GetInputPinState(byte pin)
         {
-            byte mask = (byte)(1 << pin);
-            return (this.ReadByte(GPIOB) & mask) == mask;
+            var mask = (byte)(1 << pin);
+            var state = this.ReadByte(GPIOB);
+            switch (this.PortBPullUpMode)
+            {
+                case PullUpMode.PullUp:
+                    return ((state & mask) == 0);
+                case PullUpMode.PullDown:
+                default:
+                    throw new System.InvalidOperationException();
+            }
         }
 
         #endregion
@@ -270,10 +321,20 @@ namespace Kingsland.PiFaceSharp.Spi
             {
                 return -1;
             }
-            // send some initialization controls to the MCP23S17
+            // send some initialization controls to the MCP23S17. note the PiFace Emulator sends the following
+            // commands when it starts up:
+            //     cmd: WRITE, port: IOCON,  data: 0x8
+            //     cmd: WRITE, port: GPIOA,  data: 0x0
+            //     cmd: WRITE, port: IODIRA, data: 0x0
+            //     cmd: WRITE, port: IODIRB, data: 0xff
+            //     cmd: WRITE, port: GPPUB,  data: 0xff
+            //     cmd: WRITE, port: GPIOA,  data: 0x0
             this.WriteByte(IOCON, IOCON_INIT);
-            this.WriteByte(IODIRA, 0x00); // initialise output pins
-            this.WriteByte(IODIRB, 0xFF); // initalise input pins
+            this.SetOutputPinStates(0);
+            this.WriteByte(IODIRA, 0x00); // initialise Port A pins for output
+            this.WriteByte(IODIRB, 0xFF); // initialise Port B pins for input
+            this.PortBPullUpMode = PullUpMode.PullUp; // set pull up mode on input pins
+            this.SetOutputPinStates(0);
             return 0;
         }
         
