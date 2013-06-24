@@ -57,10 +57,14 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PinControllers\BlinkingPinController.cs" />
     <Compile Include="Native\FCntl.cs" />
     <Compile Include="Native\IoCtl.cs" />
     <Compile Include="Native\SpiDev.cs" />
     <Compile Include="PiFace.cs" />
+    <Compile Include="PinControllers\BackgroundPinController.cs" />
+    <Compile Include="PinControllers\PinControllerBase.cs" />
+    <Compile Include="PinControllers\PwmPinController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
