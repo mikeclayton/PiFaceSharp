@@ -7,13 +7,13 @@ The library can be used to write C# applications that run using Mono on the Rasp
 
 Follow the links below to read about some of the features of PiFaceSharp:
 
-* [[Getting Started]]
+* [Getting Started](https://github.com/mikeclayton/PiFaceSharp/wiki/Getting-Started)
 
-* [[Pin Controllers]] - background workers that will manage pin state automatically
+* [Pin Controllers](https://github.com/mikeclayton/PiFaceSharp/wiki/Pin-Controllers) - background workers that will manage pin state automatically
 
-* [[PiFace Emulator]] - a virtual PiFace for Windows that you can program against even if you don't have a Raspberyy Pi!
+* [PiFace Emulator](https://github.com/mikeclayton/PiFaceSharp/wiki/PiFace-Emulator) - a virtual PiFace for Windows that you can program against even if you don't have a Raspberyy Pi!
 
-* [[PiFace Remoting]] - control the pins on your PiFace over a network using exactly the same C# code as when running it on the Raspberry Pi.
+* [PiFace Remoting](https://github.com/mikeclayton/PiFaceSharp/wiki/PiFace-Remoting) - control the pins on your PiFace over a network using exactly the same C# code as when running it on the Raspberry Pi.
 
 Example
 =======
