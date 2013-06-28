@@ -11,7 +11,7 @@ Follow the links below to read about some of the features of PiFaceSharp:
 
 * [Pin Controllers](https://github.com/mikeclayton/PiFaceSharp/wiki/Pin-Controllers) - background workers that will manage pin state automatically
 
-* [PiFace Emulator](https://github.com/mikeclayton/PiFaceSharp/wiki/PiFace-Emulator) - a virtual PiFace for Windows that you can program against even if you don't have a Raspberyy Pi!
+* [PiFace Emulator](https://github.com/mikeclayton/PiFaceSharp/wiki/PiFace-Emulator) - a virtual PiFace for Windows that you can program against even if you don't have a Raspberry Pi!
 
 * [PiFace Remoting](https://github.com/mikeclayton/PiFaceSharp/wiki/PiFace-Remoting) - control the pins on your PiFace over a network using exactly the same C# code as when running it on the Raspberry Pi.
 
