@@ -8,8 +8,8 @@
     <ProjectGuid>{B1E5E004-64EA-401D-9DC7-0F0EE6504345}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Kingsland.PiFaceSharp.Spi</RootNamespace>
-    <AssemblyName>Kingsland.PiFaceSharp.Spi</AssemblyName>
+    <RootNamespace>Kingsland.PiFaceSharp</RootNamespace>
+    <AssemblyName>Kingsland.PiFaceSharp</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -57,16 +57,23 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Remote\PiFaceTcpClient.cs" />
+    <Compile Include="Emulators\PiFaceEmulator.cs" />
+    <Compile Include="Remote\PiFaceTcpHelper.cs" />
+    <Compile Include="Remote\PacketType.cs" />
+    <Compile Include="Remote\PiFaceTcpServer.cs" />
+    <Compile Include="IPiFaceDevice.cs" />
     <Compile Include="PinControllers\BlinkingPinController.cs" />
-    <Compile Include="Native\FCntl.cs" />
-    <Compile Include="Native\IoCtl.cs" />
-    <Compile Include="Native\SpiDev.cs" />
-    <Compile Include="PiFace.cs" />
+    <Compile Include="Spi\Native\FCntl.cs" />
+    <Compile Include="Spi\Native\IoCtl.cs" />
+    <Compile Include="Spi\Native\SpiDev.cs" />
+    <Compile Include="Spi\PiFaceDevice.cs" />
     <Compile Include="PinControllers\BackgroundPinController.cs" />
     <Compile Include="PinControllers\PinControllerBase.cs" />
     <Compile Include="PinControllers\PwmPinController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

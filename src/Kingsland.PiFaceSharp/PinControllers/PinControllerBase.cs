@@ -1,5 +1,5 @@
 ﻿
-namespace Kingsland.PiFaceSharp.Spi.PinControllers
+namespace Kingsland.PiFaceSharp.PinControllers
 {
 
     /// <summary>
@@ -17,7 +17,7 @@ namespace Kingsland.PiFaceSharp.Spi.PinControllers
         /// <param name="piface">
         /// A reference to the PiFace Digital device to control the output pins on.
         /// </param>
-        protected PinControllerBase(PiFace piface)
+        protected PinControllerBase(IPiFaceDevice piface)
             : base()
         {
             this.PiFace = piface;
@@ -30,7 +30,7 @@ namespace Kingsland.PiFaceSharp.Spi.PinControllers
         /// <summary>
         /// Gets a reference to the PiFace Digital device this pin controller is bound to.
         /// </summary>
-        public PiFace PiFace
+        public IPiFaceDevice PiFace
         {
             get;
             private set;

@@ -6,10 +6,10 @@ namespace Kingsland.PiFaceSharp.Spi
 {
 
     /// <summary>
-    /// 
+    /// Implements a wrapper around a physical PiFace device attached to a Raspberry Pi.
     /// </summary>
     /// <see cref="https://github.com/WiringPi/WiringPi/blob/master/wiringPi/wiringPiFace.c"/>
-    public sealed class PiFace
+    public sealed class PiFaceDevice : IPiFaceDevice
     {
 
         #region Constants
@@ -81,8 +81,8 @@ namespace Kingsland.PiFaceSharp.Spi
         /// <summary>
         /// Creates a new PiFace object using the default device name.
         /// </summary>
-        public PiFace()
-            : this(PiFace.DefaultDeviceName)
+        public PiFaceDevice()
+            : this(PiFaceDevice.DefaultDeviceName)
         {
         }
 
@@ -92,7 +92,7 @@ namespace Kingsland.PiFaceSharp.Spi
         /// <param name="deviceName">
         /// The name of the device to connect to.
         /// </param>
-        public PiFace(string deviceName)
+        public PiFaceDevice(string deviceName)
         {
             this.DeviceName = deviceName;
             this.Initialize();
@@ -158,7 +158,38 @@ namespace Kingsland.PiFaceSharp.Spi
 
         #endregion
 
-        #region Write Methods
+        #region IO Methods
+
+        private byte ReadByte(byte pin)
+        {
+            // create unmanaged transmit and receive buffers
+            var spiBufTx = Marshal.AllocHGlobal(3);
+            var spiBufRx = Marshal.AllocHGlobal(3);
+            Marshal.Copy(new byte[3] { CMD_READ, pin, 0 }, 0, spiBufTx, 3);
+            Marshal.Copy(new byte[3] { 0, 0, 0 }, 0, spiBufRx, 3);
+            // build the command
+            var cmd = SpiDev.SPI_IOC_MESSAGE(1);
+            // build the spi transfer structure
+            var spi = new SpiDev.spi_ioc_transfer();
+            spi.tx_buf = (UInt64)spiBufTx.ToInt64();
+            spi.rx_buf = (UInt64)spiBufRx.ToInt64();
+            spi.len = 3;
+            spi.delay_usecs = this.m_SpiDelay;
+            spi.speed_hz = this.m_SpiSpeed;
+            spi.bits_per_word = (byte)this.m_SpiBPW;
+            // call the native method
+            var result = IoCtl.ioctl(this.DeviceHandle, cmd, ref spi);
+            if (result < 0)
+            {
+                var error = Mono.Unix.Native.Stdlib.GetLastError();
+            }
+            // return the result. every byte transmitted results in a
+            // data or dummy byte received, so we have to skip the
+            // leading dummy bytes to read out actual data bytes.
+            var bufOut = new byte[3];
+            Marshal.Copy(spiBufRx, bufOut, 0, bufOut.Length);
+            return bufOut[2];
+        }
 
         /// <summary>
         /// Write a value to the specified register on the PiFace's
@@ -194,6 +225,37 @@ namespace Kingsland.PiFaceSharp.Spi
             Marshal.FreeHGlobal(spiBufRx);
         }
 
+        #endregion
+
+        #region Pin State Methods
+
+        /// <summary>
+        /// Gets the state of a single output pin.
+        /// </summary>
+        /// <param name="pin"></param>
+        /// <returns></returns>
+        public bool GetOutputPinState(byte pin)
+        {
+            var mask = (byte)(1 << pin);
+            var state = this.ReadByte(GPIOA);
+            this.OutputPinBuffer = state;
+            return (state & mask) == mask;
+        }
+
+        /// <summary>
+        /// Gets the bitmask containing the state of all output pins.
+        /// </summary>
+        /// <param name="pin"></param>
+        /// <returns>
+        /// A bitmask containing true for each output pin that is HIGH, and false if it is LOW.
+        /// </returns>
+        public byte GetOutputPinStates()
+        {
+            var state = this.ReadByte(GPIOA);
+            this.OutputPinBuffer = state;
+            return state;
+        }
+
         /// <summary>
         /// Update the state of a single output pin.
         /// </summary>
@@ -223,49 +285,13 @@ namespace Kingsland.PiFaceSharp.Spi
             this.WriteByte(GPIOA, bitMask);
         }
 
-        #endregion
-
-        #region Read Methods
-
-        public byte ReadByte(byte pin)
-        {
-            // create unmanaged transmit and receive buffers
-            var spiBufTx = Marshal.AllocHGlobal(3);
-            var spiBufRx = Marshal.AllocHGlobal(3);
-            Marshal.Copy(new byte[3] { CMD_READ, pin, 0 }, 0, spiBufTx, 3);
-            Marshal.Copy(new byte[3] { 0, 0, 0 }, 0, spiBufRx, 3);
-            // build the command
-            var cmd = SpiDev.SPI_IOC_MESSAGE(1);
-            // build the spi transfer structure
-            var spi = new SpiDev.spi_ioc_transfer();
-            spi.tx_buf = (UInt64)spiBufTx.ToInt64();
-            spi.rx_buf = (UInt64)spiBufRx.ToInt64();
-            spi.len = 3;
-            spi.delay_usecs = this.m_SpiDelay;
-            spi.speed_hz = this.m_SpiSpeed;
-            spi.bits_per_word = (byte)this.m_SpiBPW;
-            // call the native method
-            var result = IoCtl.ioctl(this.DeviceHandle, cmd, ref spi);
-            if (result < 0)
-            {
-                var error = Mono.Unix.Native.Stdlib.GetLastError();
-            }
-            // return the result. every byte transmitted results in a
-            // data or dummy byte received, so we have to skip the
-            // leading dummy bytes to read out actual data bytes.
-            var bufOut = new byte[3];
-            Marshal.Copy(spiBufRx, bufOut, 0, bufOut.Length);
-            return bufOut[2];
-        }
-
-        public bool GetOutputPinState(byte pin)
-        {
-            var mask = (byte)(1 << pin);
-            var state = this.ReadByte(GPIOA);
-            this.OutputPinBuffer = state;
-            return (state & mask) == mask;
-        }
-
+        /// <summary>
+        /// Gets the state of a single input pin.
+        /// </summary>
+        /// <param name="pin"></param>
+        /// <returns>
+        /// True if the specified pin is HIGH, or false if it is LOW.
+        /// </returns>
         public bool GetInputPinState(byte pin)
         {
             var mask = (byte)(1 << pin);
@@ -278,6 +304,47 @@ namespace Kingsland.PiFaceSharp.Spi
                 default:
                     throw new System.InvalidOperationException();
             }
+        }
+
+        /// <summary>
+        /// Gets a bitmask containing the state of all input pins.
+        /// </summary>
+        /// <param name="pin"></param>
+        /// <returns>
+        /// A bitmask containing true for each input pin that is HIGH, and false if it is LOW.
+        /// </returns>
+        public byte GetInputPinStates()
+        {
+            var state = this.ReadByte(GPIOB);
+            return state;
+        }
+
+        /// <summary>
+        /// Update the state of a single input pin.
+        /// </summary>
+        /// <param name="pin"></param>
+        /// <param name="value"></param>
+        /// <remarks>
+        /// This method is provided to support the PiFaceEmulator, and will 
+        /// throw an exception if called on a physical PiFaceDevice.
+        /// </remarks>
+        public void SetInputPinState(byte pin, bool enabled)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <summary>
+        /// Update the state of all input pins using a bitmask
+        /// containing the state for each pin.
+        /// </summary>
+        /// <param name="bitMask"></param>
+        /// <remarks>
+        /// This method is provided to support the PiFaceEmulator, and will 
+        /// throw an exception if called on a physical PiFaceDevice.
+        /// </remarks>
+        public void SetInputPinStates(byte bitMask)
+        {
+            throw new System.NotImplementedException();
         }
 
         #endregion

@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace Kingsland.PiFaceSharp.Spi.PinControllers
+namespace Kingsland.PiFaceSharp.PinControllers
 {
 
     /// <summary>
@@ -29,7 +29,7 @@ namespace Kingsland.PiFaceSharp.Spi.PinControllers
         /// <param name="interval">
         /// The number of milliseconds between turning the output pin on and off.
         /// </param>
-        public BlinkingPinController(PiFace piface, byte outputPin, int interval)
+        public BlinkingPinController(IPiFaceDevice piface, byte outputPin, int interval)
             : base(piface)
         {
             this.OutputPin = outputPin;

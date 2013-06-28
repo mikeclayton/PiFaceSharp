@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace Kingsland.PiFaceSharp.Spi.PinControllers
+namespace Kingsland.PiFaceSharp.PinControllers
 {
 
     /// <summary>
@@ -38,7 +38,7 @@ namespace Kingsland.PiFaceSharp.Spi.PinControllers
         /// <param name="piface"></param>
         /// <param name="outputPin"></param>
         /// <param name="period"></param>
-        public PwmPinController(PiFace piface, byte outputPin, int period)
+        public PwmPinController(IPiFaceDevice piface, byte outputPin, int period)
             : this(piface, outputPin, period, 0)
         {
         }
@@ -53,7 +53,7 @@ namespace Kingsland.PiFaceSharp.Spi.PinControllers
         /// <param name="outputPin"></param>
         /// <param name="period"></param>
         /// <param name="duty"></param>
-        public PwmPinController(PiFace piface, byte outputPin, int period, float duty)
+        public PwmPinController(IPiFaceDevice piface, byte outputPin, int period, float duty)
             : base(piface)
         {
             // copy the parameters locally

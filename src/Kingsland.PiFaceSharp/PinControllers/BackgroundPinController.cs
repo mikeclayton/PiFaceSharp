@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Threading;
 
-namespace Kingsland.PiFaceSharp.Spi.PinControllers
+namespace Kingsland.PiFaceSharp.PinControllers
 {
 
     /// <summary>
-    /// Implements a common base for an output pin controller that is run
-    /// on a separate thread. This allows the background pin controller
-    /// to perform its behaviour without the need for the main program
+    /// Implements a common base for a pin controller that is run on a
+    /// separate thread. This allows the background pin controller to
+    /// perform its behaviour without the need for the main program
     /// thread to manage the state of the pin.
     /// </summary>
     public abstract class BackgroundPinController : PinControllerBase
@@ -33,7 +33,7 @@ namespace Kingsland.PiFaceSharp.Spi.PinControllers
         /// PiFace Digital device.
         /// </summary>
         /// <param name="piface"></param>
-        protected BackgroundPinController(PiFace piface)
+        protected BackgroundPinController(IPiFaceDevice piface)
             : base(piface)
         {
         }
