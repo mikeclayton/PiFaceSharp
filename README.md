@@ -20,26 +20,28 @@ Example
 
 ```c#
 // get reference to default piface device
-var piface = new PiFace();
-    
+var piface = new PiFaceDevice();
+
 // toggle each output pin on and off 50 times
 for (byte pin = 0; pin < 8; pin++)
 {
     var state = true;
-    for (var i = 0; i < 50; i++ )
+    for (var i = 0; i < 50; i++)
     {
         piface.SetOutputPinState(pin, state);
         System.Threading.Thread.Sleep(25);
         state = !state;
     }
 }
-    
+
 // read the current state of each input pin
-for(byte pin = 0; pin < 8; i++)
+for (byte pin = 0; pin < 8; pin++)
 {
     Console.Write(piface.GetInputPinState(pin) + " ");
 }
 ```
+
+See the Kingsland.PiFaceSharp.SampleConsole project for the full source.
 
 
 License
