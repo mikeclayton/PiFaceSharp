@@ -5,8 +5,10 @@ using System.Windows.Forms;
 
 namespace Kingsland.PiFaceSharp.Emulator
 {
+
     static class Program
     {
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -17,5 +19,7 @@ namespace Kingsland.PiFaceSharp.Emulator
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
         }
+
     }
+
 }

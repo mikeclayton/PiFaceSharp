@@ -1,9 +1,14 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace Kingsland.PiFaceSharp.Spi.Native
 {
 
-    internal static class IoCtl
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <see cref="/usr/include/asm-generic/ioctl.h"/>
+    public static class IoCtl
     {
 
         /// <summary>
@@ -15,7 +20,7 @@ namespace Kingsland.PiFaceSharp.Spi.Native
         /// <returns></returns>
         /// <see cref="/usr/include/asm-generic/ioctl.h"/>
         [DllImport("libc", EntryPoint = "ioctl", SetLastError = true)]
-        internal static extern int ioctl(uint fd, uint cmd, ref uint arg);
+        public static extern int ioctl(uint fd, uint cmd, ref uint arg);
 
         /// <summary>
         /// 
@@ -26,7 +31,18 @@ namespace Kingsland.PiFaceSharp.Spi.Native
         /// <returns></returns>
         /// <see cref="/usr/include/asm-generic/ioctl.h"/>
         [DllImport("libc", EntryPoint = "ioctl", SetLastError = true)]
-        internal static extern int ioctl(uint fd, uint cmd, ref SpiDev.spi_ioc_transfer arg);
+        public static extern int ioctl(uint fd, uint cmd, IntPtr arg);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fd"></param>
+        /// <param name="cmd"></param>
+        /// <param name="arg"></param>
+        /// <returns></returns>
+        /// <see cref="/usr/include/asm-generic/ioctl.h"/>
+        [DllImport("libc", EntryPoint = "ioctl", SetLastError = true)]
+        public static extern int ioctl(uint fd, uint cmd, ref SpiDev.spi_ioc_transfer arg);
 
         public const int IOC_NRBITS = 8;
         public const int IOC_TYPEBITS = 8;

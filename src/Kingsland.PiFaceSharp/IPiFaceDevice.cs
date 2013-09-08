@@ -84,7 +84,6 @@ namespace Kingsland.PiFaceSharp
         /// </remarks>
         void SetInputPinStates(byte bitMask);
 
-
         #endregion
 
     }

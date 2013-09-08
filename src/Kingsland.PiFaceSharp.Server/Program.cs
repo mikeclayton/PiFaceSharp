@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
+﻿using System.Net;
 using Kingsland.PiFaceSharp.Emulators;
 using Kingsland.PiFaceSharp.Remote;
 using Kingsland.PiFaceSharp.Spi;
@@ -51,7 +47,7 @@ namespace Kingsland.PiFaceSharp.Server
             }
 
             // start the server
-            var endpoint = new IPEndPoint(address, 43596);            
+            var endpoint = new IPEndPoint(address, (int)port);
             var server = new PiFaceTcpServer(device, endpoint);
             server.Start();
 

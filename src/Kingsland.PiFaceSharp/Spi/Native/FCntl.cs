@@ -7,7 +7,7 @@ namespace Kingsland.PiFaceSharp.Spi.Native
     /// 
     /// </summary>
     /// <see cref="/usr/include/fcntl.h"/>
-    internal static class FCntl
+    public static class FCntl
     {
 
         [DllImport("libc", EntryPoint = "open", SetLastError = true)]

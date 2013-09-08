@@ -8,7 +8,7 @@ namespace Kingsland.PiFaceSharp.Spi.Native
     ///
     /// </summary>
     /// <see cref="/usr/include/linux/spi/spidev.h"/>
-    internal static class SpiDev
+    public static class SpiDev
     {
 
         public const byte SPI_CPHA = 0x01;

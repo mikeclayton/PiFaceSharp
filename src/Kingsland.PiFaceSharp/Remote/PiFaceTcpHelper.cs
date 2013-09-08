@@ -48,7 +48,6 @@ namespace Kingsland.PiFaceSharp.Remote
                        .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
         }
 
-
     }
 
 }
