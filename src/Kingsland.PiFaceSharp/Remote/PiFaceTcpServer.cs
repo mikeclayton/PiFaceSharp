@@ -208,6 +208,10 @@ namespace Kingsland.PiFaceSharp.Remote
             var result = new List<Byte>();
             switch (type)
             {
+                case PacketType.GetOutputPinState:
+                    var state = this.PiFaceDevice.GetOutputPinState(data[0]);
+                    result.Add((byte)(state ? 0 : 1));
+                    break;
                 case PacketType.GetOutputPinStates:
                     result.Add(this.PiFaceDevice.GetOutputPinStates());
                     break;
