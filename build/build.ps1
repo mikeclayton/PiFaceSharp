@@ -12,6 +12,7 @@ $thisScript = $MyInvocation.MyCommand.Path;
 $thisFolder = [System.IO.Path]::GetDirectoryName($thisScript);
 
 
+. ([System.IO.Path]::Combine($thisFolder, "Install-TeamCityNUnitAddIn.ps1"));
 . ([System.IO.Path]::Combine($thisFolder, "Invoke-MSBuild.ps1"));
 . ([System.IO.Path]::Combine($thisFolder, "Invoke-NUnit.ps1"));
 . ([System.IO.Path]::Combine($thisFolder, "Read-TeamCityBuildProperties.ps1"));
