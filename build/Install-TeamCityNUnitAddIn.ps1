@@ -5,7 +5,7 @@ function Install-TeamCityNUnitAddIn()
     (
 
         [Parameter(Mandatory=$true)]
-        [string] $teamcityAddinPath,
+        [string] $teamcityNUnitAddin,
 
         [Parameter(Mandatory=$true)]
         [string] $nunitRunnersFolder
@@ -15,36 +15,33 @@ function Install-TeamCityNUnitAddIn()
     write-host "--------------------------";
     write-host "Install-TeamCityNUnitAddIn";
     write-host "--------------------------";
-    write-host "addin path = $teamcityAddinPath";
-    write-host "runner dir = $nunitRunnersFolder";
+    write-host "nunit addin = $teamcityAddinPath";
+    write-host "runner dir  = $nunitRunnersFolder";
 
-    $root = [System.IO.Path]::GetDirectoryName($teamCityAddinPath);
-    if( [System.IO.Directory]::Exists($root) )
+    # get the version number of the nunit runner
+    $console = [System.IO.Path]::Combine($nunitRunnersFolder, "tools\nunit-console.exe");
+    $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($console);
+    $versionString = [string]::Format("{0}.{1}.{2}", `
+                                      $version.ProductMajorPart, `
+                                      $version.ProductMinorPart, `
+                                      $version.ProductBuildPart);
+    write-host "nunit version = $versionString";
+
+    write-host "checking for teamcity addin";
+    $sourceFolder = [System.IO.Path]::GetDirectoryName($teamcityNUnitAddin);
+    $sourceFilename = [System.IO.Path]::GetFileName($teamcityNUnitAddin) + "-" + $versionString + ".dll";
+    write-host "source folder = $sourceFolder";
+    write-host "source file   = $sourceFilename";
+    if( -not [System.IO.File]::Exists($sourceFilename) )
     {
-        foreach( $file in [System.IO.Directory]::GetFiles($root) )
-        {
-            write-host $file;
-        }
-    }
-
-    if( -not [System.IO.Directory]::Exists($teamcityAddinPath) )
-    {
-        write-host "addin path does not exist";
-        return;
-    }
-
-    throw new-object System.NotImplementedException;
-
-    write-host "copying directories = ";
-    foreach( $folder in [System.IO.Directory]::GetDirectories($teamcityAddinPath) )
-    {
-        write-host $folder;
+        throw new-object System.IO.FileNotFoundException("TeamCity addin folder doesn't contain an addin for NUnit version $versionString.", $sourceFilename);
     }
 
     write-host "copying files = ";
-    foreach( $file in [System.IO.Directory]::GetFiles($teamcityAddinPath) )
+    $searchPattern = [System.IO.Path]::GetFileName($teamcityNUnitAddin) + "-" + $versionString + ".*";
+    foreach( $sourceFilename in [System.IO.Directory]::GetFiles($sourceFolder, $searchPattern) )
     {
-        write-host $file;
+        write-host $sourceFilename;
     }
 
     write-host "--------------------------";
