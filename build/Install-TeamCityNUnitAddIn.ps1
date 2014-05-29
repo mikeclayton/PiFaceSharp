@@ -51,9 +51,9 @@ function Install-TeamCityNUnitAddIn()
     {
         $targetFilename = [System.IO.Path]::GetFilename($sourceFilename);
         $targetFilename = [System.IO.Path]::Combine($targetFolder, $targetFilename);
-        #[System.IO.File]::Copy($sourceFilename, $targetFilename, $true);
         write-host "source = $sourceFilename";
         write-host "target = $targetFilename";
+        [System.IO.File]::Copy($sourceFilename, $targetFilename, $true);
     }
 
     write-host "--------------------------";
