@@ -3,8 +3,8 @@
 set powershell=%windir%\System32\WindowsPowerShell\v1.0\powershell.exe
 set dir=%~dp0%
 
-echo "powershell = %powershell%"
-echo "dir        = %dir%"
+echo powershell = %powershell%
+echo dir        = %dir%
 
 rem the following resets ERRORLEVEL to 0 prior to running powershell
 verify > nul

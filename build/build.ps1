@@ -21,12 +21,21 @@ $thisFolder = [System.IO.Path]::GetDirectoryName($thisScript);
 Set-PowerShellHostWidth 500;
 
 
+$solution     = [System.IO.Path]::Combine($thisFolder, "..\src\Kingsland.PiFaceSharp.sln");
+$assembly     = [System.IO.Path]::Combine($thisFolder, "..\src\Kingsland.PiFaceSharp.UnitTests\bin\Debug\Kingsland.PiFaceSharp.UnitTests.dll");
+$nunitRunners = [System.IO.Path]::Combine($thisFolder, "..\src\packages\NUnit.Runners.2.6.3");
+
+
 $properties = Read-TeamCityBuildProperties;
+if( $properties -ne $null )
+{
+    Install-TeamCityNUnitAddIn -teamcityAddinPath $properties["teamcity.dotnet.nunitaddin"] `
+                               -nunitRunnersFolder $nunitRunners;
+}
 
 
-$solution = [System.IO.Path]::Combine($thisFolder, "..\src\Kingsland.PiFaceSharp.sln");
 Invoke-MsBuild -solution $solution -targets $targets;
 
 
-$assembly = [System.IO.Path]::Combine($thisFolder, "..\src\Kingsland.PiFaceSharp.UnitTests\bin\Debug\Kingsland.PiFaceSharp.UnitTests.dll");
-Invoke-NUnit -assembly $assembly;
+Invoke-NUnit -nunitRunnersFolder $nunitRunners `
+             -assembly $assembly;

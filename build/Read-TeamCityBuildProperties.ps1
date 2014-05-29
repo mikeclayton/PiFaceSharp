@@ -46,7 +46,7 @@ function Read-TeamCityBuildProperties()
     write-host "reading system properties file";
     $entries = Invoke-Command -ScriptBlock $fileReader -ArgumentList @("$filename.xml");
     write-host "entries = ";
-    write-host ($entries | ft | out-string);
+    write-host ($entries | ft -AutoSize | out-string);
     foreach( $key in $entries.Keys )
     {
         $properties.Add("system." + $key, $entries[$key]);
@@ -56,7 +56,7 @@ function Read-TeamCityBuildProperties()
     $filename = $properties["system.teamcity.configuration.properties.file"] + ".xml";
     $entries = Invoke-Command -ScriptBlock $fileReader -ArgumentList @($filename);
     write-host "entries = ";
-    write-host ($entries | ft | out-string);
+    write-host ($entries | ft -AutoSize | out-string);
     foreach( $key in $entries.Keys )
     {
         if( -not $properties.ContainsKey($key) )
@@ -69,7 +69,7 @@ function Read-TeamCityBuildProperties()
     $filename = $properties["system.teamcity.runner.properties.file"] + ".xml";
     $entries = Invoke-Command -ScriptBlock $fileReader -ArgumentList @($filename);
     write-host "entries = ";
-    write-host ($entries | ft | out-string);
+    write-host ($entries | ft -AutoSize | out-string);
     foreach( $key in $entries.Keys )
     {
         if( -not $properties.ContainsKey($key) )

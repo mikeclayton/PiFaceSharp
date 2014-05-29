@@ -17,6 +17,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kingsland.PiFaceSharp.Sampl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kingsland.PiFaceSharp.UnitTests", "Kingsland.PiFaceSharp.UnitTests\Kingsland.PiFaceSharp.UnitTests.csproj", "{C3209BFD-5D3D-459C-ADC5-F5C5E82C19DE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{563FF291-5328-427F-A6E4-336D22DDD0A1}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

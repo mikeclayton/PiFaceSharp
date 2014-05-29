@@ -5,26 +5,30 @@ function Invoke-NUnit
     (
 
         [Parameter(Mandatory=$true)]
+        [string] $nunitRunnersFolder,
+
+        [Parameter(Mandatory=$true)]
         [string] $assembly
 
     )     
 
-    write-host "----------------";
-    write-host "Invoke-UnitTests";
-    write-host "----------------";
+    write-host "------------";
+    write-host "Invoke-NUnit";
+    write-host "------------";
+    write-host "runners dir = $nunitRunnersFolder";
 
-    $nunit = [System.IO.Path]::Combine($thisFolder, "..\src\packages\NUnit.Runners.2.6.3\tools\nunit-console.exe");
+    $console = [System.IO.Path]::Combine($nunitRunnersFolder, "tools\nunit-console.exe");
     
-    write-host "nunit path = $nunit";
-    write-host "assembly   = $assembly";
+    write-host "console exe = $console";
+    write-host "assembly    = $assembly";
 
-    & "$nunit" $assembly;
+    & "$console" $assembly;
 
     if( $LastExitCode -ne 0 )
     {
         throw new-object System.InvalidOperationException("Command failed with exit code $LastExitCode.");
     }
 
-    write-host "----------------";
+    write-host "------------";
 
 }
