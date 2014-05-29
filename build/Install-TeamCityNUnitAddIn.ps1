@@ -42,14 +42,18 @@ function Install-TeamCityNUnitAddIn()
     write-host "target folder = $targetFolder";
     if( -not [System.IO.Directory]::Exists($targetFolder) )
     {
-        #[System.IO.Directory]::CreateDirectory($targetFolder);
+        [void] [System.IO.Directory]::CreateDirectory($targetFolder);
     }
 
     write-host "copying files = ";
     $searchPattern = [System.IO.Path]::GetFileName($teamcityNUnitAddin) + "-" + $versionString + ".*";
     foreach( $sourceFilename in [System.IO.Directory]::GetFiles($sourceFolder, $searchPattern) )
     {
-        write-host $sourceFilename;
+        $targetFilename = [System.IO.Path]::GetFilename($sourceFilename);
+        $targetFilename = [System.IO.Path]::Combine($targetFolder, $targetFilename);
+        #[System.IO.File]::Copy($sourceFilename, $targetFilename, $true);
+        write-host "source = $sourceFilename";
+        write-host "target = $targetFilename";
     }
 
     write-host "--------------------------";
