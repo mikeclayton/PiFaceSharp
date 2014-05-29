@@ -88,6 +88,8 @@ namespace Kingsland.PiFaceSharp.UnitTests
             [TestCase(170, new[] { true, false, true, false, true, false, true, false })]
             public void PropertySetAppliesCorrectPinStates(byte bitMask, bool[] pinStates)
             {
+                // added delay to test team city real-time progress updates with slow tests
+                System.Threading.Thread.Sleep(10000);
                 var piface = new Emulators.PiFaceEmulator();
                 piface.SetInputPinStates(bitMask);
                 for (var i = (byte)0; i < pinStates.Length; i++)
