@@ -18,6 +18,15 @@ function Install-TeamCityNUnitAddIn()
     write-host "addin path = $teamcityAddinPath";
     write-host "runner dir = $nunitRunnersFolder";
 
+    $root = [System.IO.Path]::GetDirectoryName($teamCityAddinPath);
+    if( [System.IO.Directory]::Exists($root) )
+    {
+        foreach( $file in [System.IO.Directory]::GetFiles($root) )
+        {
+            write-host $file;
+        }
+    }
+
     if( -not [System.IO.Directory]::Exists($teamcityAddinPath) )
     {
         write-host "addin path does not exist";
