@@ -12,18 +12,21 @@ $thisScript = $MyInvocation.MyCommand.Path;
 $thisFolder = [System.IO.Path]::GetDirectoryName($thisScript);
 
 
-$msbuild = "$($env:windir)\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe";
-$version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($msbuild);
+. ([System.IO.Path]::Combine($thisFolder, "Invoke-MSBuild.ps1"));
+. ([System.IO.Path]::Combine($thisFolder, "Invoke-NUnit.ps1"));
+. ([System.IO.Path]::Combine($thisFolder, "Read-TeamCityBuildProperties.ps1"));
+. ([System.IO.Path]::Combine($thisFolder, "Set-PowerShellHostWidth.ps1"));
 
 
-write-host "--------------------";
-write-host "msbuild version info";
-write-host "--------------------";
-write-host ($version | fl * | out-string);
-write-host "--------------------";
+Set-PowerShellHostWidth 500;
+
+
+$properties = Read-TeamCityBuildProperties;
 
 
 $solution = [System.IO.Path]::Combine($thisFolder, "..\src\Kingsland.PiFaceSharp.sln");
+Invoke-MsBuild -solution $solution -targets $targets;
 
 
-& "$msbuild" $solution /maxcpucount /verbosity:Minimal /target:"$targets"
+$assembly = [System.IO.Path]::Combine($thisFolder, "..\src\Kingsland.PiFaceSharp.UnitTests\bin\Debug\Kingsland.PiFaceSharp.UnitTests.dll");
+Invoke-NUnit -assembly $assembly;
