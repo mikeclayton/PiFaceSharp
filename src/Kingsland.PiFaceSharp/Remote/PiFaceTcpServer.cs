@@ -177,7 +177,7 @@ namespace Kingsland.PiFaceSharp.Remote
                             {
                                 this.ProcessMessage(stream);
                             }
-                            catch (Exception ex)
+                            catch
                             {
                             }
                         }
