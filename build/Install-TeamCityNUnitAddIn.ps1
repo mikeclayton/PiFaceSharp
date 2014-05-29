@@ -18,13 +18,21 @@ function Install-TeamCityNUnitAddIn()
     write-host "addin path = $teamcityAddinPath";
     write-host "runner dir = $nunitRunnersFolder";
 
-    write-host "directories = ";
+    if( -not [System.IO.Directory]::Exists($teamcityAddinPath) )
+    {
+        write-host "addin path does not exist";
+        return;
+    }
+
+    throw new-object System.NotImplementedException;
+
+    write-host "copying directories = ";
     foreach( $folder in [System.IO.Directory]::GetDirectories($teamcityAddinPath) )
     {
         write-host $folder;
     }
 
-    write-host "files = ";
+    write-host "copying files = ";
     foreach( $file in [System.IO.Directory]::GetFiles($teamcityAddinPath) )
     {
         write-host $file;
