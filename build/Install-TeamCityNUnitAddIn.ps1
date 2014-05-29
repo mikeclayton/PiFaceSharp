@@ -32,7 +32,7 @@ function Install-TeamCityNUnitAddIn()
     $sourceFilename = [System.IO.Path]::GetFileName($teamcityNUnitAddin) + "-" + $versionString + ".dll";
     write-host "source folder = $sourceFolder";
     write-host "source file   = $sourceFilename";
-    if( -not [System.IO.File]::Exists($sourceFilename) )
+    if( -not [System.IO.File]::Exists([System.IO.Path]::Combine($sourceFolder, $sourceFilename)) )
     {
         throw new-object System.IO.FileNotFoundException("TeamCity addin folder doesn't contain an addin for NUnit version $versionString.", $sourceFilename);
     }
