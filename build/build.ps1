@@ -30,7 +30,7 @@ $nunitRunners = [System.IO.Path]::Combine($thisFolder, "..\src\packages\NUnit.Ru
 $properties = Read-TeamCityBuildProperties;
 if( $properties -ne $null )
 {
-    Install-TeamCityNUnitAddIn -teamcityAddinPath $properties["teamcity.dotnet.nunitaddin"] `
+    Install-TeamCityNUnitAddIn -teamcityAddinPath $properties["system.teamcity.dotnet.nunitaddin"] `
                                -nunitRunnersFolder $nunitRunners;
 }
 
