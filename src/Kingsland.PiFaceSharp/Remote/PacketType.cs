@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Kingsland.PiFaceSharp.Remote
+﻿namespace Kingsland.PiFaceSharp.Remote
 {
     
     public enum PacketType : byte

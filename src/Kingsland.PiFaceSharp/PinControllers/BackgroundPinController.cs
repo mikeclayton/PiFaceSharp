@@ -22,7 +22,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
 
         #region Fields
 
-        private readonly object m_LockObject = new object();
+        private readonly object _mLockObject = new object();
 
         #endregion
 
@@ -75,7 +75,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
         /// </summary>
         public void Start()
         {
-            lock (m_LockObject)
+            lock (_mLockObject)
             {
                 switch (this.Status)
                 {
@@ -97,7 +97,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
         /// </summary>
         public void Stop()
         {
-            lock (m_LockObject)
+            lock (_mLockObject)
             {
                 switch (this.Status)
                 {

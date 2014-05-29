@@ -1,8 +1,5 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using Kingsland.PiFaceSharp.Spi.Native;
 
 namespace Kingsland.PiFaceSharp.Remote
 {
@@ -23,7 +20,6 @@ namespace Kingsland.PiFaceSharp.Remote
         /// over a TCP/IP network to control a remote PiFace device.
         /// </summary>
         public PiFaceTcpClient(IPEndPoint localEndPoint, IPEndPoint remoteEndPoint)
-            : base()
         {
             this.LocalEndPoint = localEndPoint;
             this.RemoteEndPoint = remoteEndPoint;
@@ -134,7 +130,7 @@ namespace Kingsland.PiFaceSharp.Remote
         /// <returns></returns>
         public bool GetOutputPinState(byte pin)
         {
-            var data = new byte[] { pin };
+            var data = new[] { pin };
             var result = this.SendMessage(PacketType.GetOutputPinState, data);
             throw new System.InvalidOperationException();
         }
@@ -142,7 +138,6 @@ namespace Kingsland.PiFaceSharp.Remote
         /// <summary>
         /// Gets the bitmask containing the state of all output pins.
         /// </summary>
-        /// <param name="pin"></param>
         /// <returns>
         /// A bitmask containing true for each output pin that is HIGH, and false if it is LOW.
         /// </returns>
@@ -156,11 +151,11 @@ namespace Kingsland.PiFaceSharp.Remote
         /// Update the state of a single output pin.
         /// </summary>
         /// <param name="pin"></param>
-        /// <param name="value"></param>
+        /// <param name="enabled"></param>
         public void SetOutputPinState(byte pin, bool enabled)
         {
-            var data = new byte[] { pin, (byte)(enabled ? 1 : 0) };
-            var result = this.SendMessage(PacketType.SetOutputPinState, data);
+            var data = new[] { pin, (byte)(enabled ? 1 : 0) };
+            this.SendMessage(PacketType.SetOutputPinState, data);
         }
 
         /// <summary>
@@ -170,7 +165,7 @@ namespace Kingsland.PiFaceSharp.Remote
         /// <param name="bitMask"></param>
         public void SetOutputPinStates(byte bitMask)
         {
-            var data = new byte[] { bitMask };
+            var data = new[] { bitMask };
             this.SendMessage(PacketType.SetOutputPinStates, data);
         }
 
@@ -183,7 +178,7 @@ namespace Kingsland.PiFaceSharp.Remote
         /// </returns>
         public bool GetInputPinState(byte pin)
         {
-            var data = new byte[] { pin };
+            var data = new[] { pin };
             var result = this.SendMessage(PacketType.GetInputPinState, data);
             throw new System.InvalidOperationException();
         }
@@ -191,7 +186,6 @@ namespace Kingsland.PiFaceSharp.Remote
         /// <summary>
         /// Gets a bitmask containing the state of all input pins.
         /// </summary>
-        /// <param name="pin"></param>
         /// <returns>
         /// A bitmask containing true for each input pin that is HIGH, and false if it is LOW.
         /// </returns>
@@ -205,7 +199,7 @@ namespace Kingsland.PiFaceSharp.Remote
         /// Update the state of a single input pin.
         /// </summary>
         /// <param name="pin"></param>
-        /// <param name="value"></param>
+        /// <param name="enabled"></param>
         /// <remarks>
         /// This method is provided to support the PiFaceEmulator, and will 
         /// throw an exception if called on a physical PiFaceDevice.
@@ -213,7 +207,7 @@ namespace Kingsland.PiFaceSharp.Remote
         public void SetInputPinState(byte pin, bool enabled)
         {
             var data = new byte[] { pin, (byte)(enabled ? 1 : 0) };
-            var result = this.SendMessage(PacketType.SetInputPinState, data);
+            this.SendMessage(PacketType.SetInputPinState, data);
         }
 
         /// <summary>
@@ -227,7 +221,7 @@ namespace Kingsland.PiFaceSharp.Remote
         /// </remarks>
         public void SetInputPinStates(byte bitMask)
         {
-            var data = new byte[] { bitMask };
+            var data = new[] { bitMask };
             this.SendMessage(PacketType.SetInputPinStates, data);
             throw new System.InvalidOperationException();
         }

@@ -68,11 +68,11 @@ namespace Kingsland.PiFaceSharp.Spi
 
         #region Fields
 
-        private UInt32 m_SpiMode = 0;
-        private UInt32 m_SpiBPW = 8;
-        private UInt32 m_SpiSpeed = 5000000;
-        private UInt16 m_SpiDelay = 0;
-        private PullUpMode m_PortBPullUpMode;
+        private UInt32 _mSpiMode = 0;
+        private UInt32 _mSpiBpw = 8;
+        private UInt32 _mSpiSpeed = 5000000;
+        private const UInt16 MSpiDelay = 0;
+        private PullUpMode _mPortBPullUpMode;
 
         #endregion
 
@@ -137,7 +137,7 @@ namespace Kingsland.PiFaceSharp.Spi
         {
             get
             {
-                return m_PortBPullUpMode;
+                return _mPortBPullUpMode;
             }
             set
             {
@@ -152,7 +152,7 @@ namespace Kingsland.PiFaceSharp.Spi
                     default:
                         throw new System.ArgumentOutOfRangeException("value");
                 }
-                m_PortBPullUpMode = value;
+                _mPortBPullUpMode = value;
             }
         }
 
@@ -165,18 +165,20 @@ namespace Kingsland.PiFaceSharp.Spi
             // create unmanaged transmit and receive buffers
             var spiBufTx = Marshal.AllocHGlobal(3);
             var spiBufRx = Marshal.AllocHGlobal(3);
-            Marshal.Copy(new byte[3] { CMD_READ, pin, 0 }, 0, spiBufTx, 3);
-            Marshal.Copy(new byte[3] { 0, 0, 0 }, 0, spiBufRx, 3);
+            Marshal.Copy(new[] { CMD_READ, pin, 0 }, 0, spiBufTx, 3);
+            Marshal.Copy(new[] { 0, 0, 0 }, 0, spiBufRx, 3);
             // build the command
             var cmd = SpiDev.SPI_IOC_MESSAGE(1);
             // build the spi transfer structure
-            var spi = new SpiDev.spi_ioc_transfer();
-            spi.tx_buf = (UInt64)spiBufTx.ToInt64();
-            spi.rx_buf = (UInt64)spiBufRx.ToInt64();
-            spi.len = 3;
-            spi.delay_usecs = this.m_SpiDelay;
-            spi.speed_hz = this.m_SpiSpeed;
-            spi.bits_per_word = (byte)this.m_SpiBPW;
+            var spi = new SpiDev.spi_ioc_transfer
+            {
+                tx_buf = (UInt64) spiBufTx.ToInt64(),
+                rx_buf = (UInt64) spiBufRx.ToInt64(),
+                len = 3,
+                delay_usecs = MSpiDelay,
+                speed_hz = this._mSpiSpeed,
+                bits_per_word = (byte) this._mSpiBpw
+            };
             // call the native method
             var result = IoCtl.ioctl(this.DeviceHandle, cmd, ref spi);
             if (result < 0)
@@ -202,8 +204,8 @@ namespace Kingsland.PiFaceSharp.Spi
             // create unmanaged transmit and receive buffers
             var spiBufTx = Marshal.AllocHGlobal(3);
             var spiBufRx = Marshal.AllocHGlobal(3);
-            Marshal.Copy(new byte[3] { CMD_WRITE, pin, value }, 0, spiBufTx, 3);
-            Marshal.Copy(new byte[3] { 0, 0, 0 }, 0, spiBufRx, 3);
+            Marshal.Copy(new[] { CMD_WRITE, pin, value }, 0, spiBufTx, 3);
+            Marshal.Copy(new[] { 0, 0, 0 }, 0, spiBufRx, 3);
             // build the command
             var cmd = SpiDev.SPI_IOC_MESSAGE(1);
             // build the spi transfer structure
@@ -211,9 +213,9 @@ namespace Kingsland.PiFaceSharp.Spi
             spi.tx_buf = (UInt64)spiBufTx.ToInt64();
             spi.rx_buf = (UInt64)spiBufRx.ToInt64();
             spi.len = 3;
-            spi.delay_usecs = this.m_SpiDelay;
-            spi.speed_hz = this.m_SpiSpeed;
-            spi.bits_per_word = (byte)this.m_SpiBPW;
+            spi.delay_usecs = MSpiDelay;
+            spi.speed_hz = this._mSpiSpeed;
+            spi.bits_per_word = (byte)this._mSpiBpw;
             // call the native method
             var result = IoCtl.ioctl(this.DeviceHandle, cmd, ref spi);
             if (result < 0)
@@ -245,7 +247,6 @@ namespace Kingsland.PiFaceSharp.Spi
         /// <summary>
         /// Gets the bitmask containing the state of all output pins.
         /// </summary>
-        /// <param name="pin"></param>
         /// <returns>
         /// A bitmask containing true for each output pin that is HIGH, and false if it is LOW.
         /// </returns>
@@ -260,10 +261,10 @@ namespace Kingsland.PiFaceSharp.Spi
         /// Update the state of a single output pin.
         /// </summary>
         /// <param name="pin"></param>
-        /// <param name="value"></param>
+        /// <param name="enabled"></param>
         public void SetOutputPinState(byte pin, bool enabled)
         {
-            byte mask = (byte)(1 << pin);
+            var mask = (byte)(1 << pin);
             if (enabled)
             {
                 this.OutputPinBuffer |= mask;
@@ -309,7 +310,6 @@ namespace Kingsland.PiFaceSharp.Spi
         /// <summary>
         /// Gets a bitmask containing the state of all input pins.
         /// </summary>
-        /// <param name="pin"></param>
         /// <returns>
         /// A bitmask containing true for each input pin that is HIGH, and false if it is LOW.
         /// </returns>
@@ -323,7 +323,7 @@ namespace Kingsland.PiFaceSharp.Spi
         /// Update the state of a single input pin.
         /// </summary>
         /// <param name="pin"></param>
-        /// <param name="value"></param>
+        /// <param name="enabled"></param>
         /// <remarks>
         /// This method is provided to support the PiFaceEmulator, and will 
         /// throw an exception if called on a physical PiFaceDevice.
@@ -364,27 +364,27 @@ namespace Kingsland.PiFaceSharp.Spi
             }
             // set the SPI parameters
             // (note - every tx results in an rx, so we have to read after every write) 
-            if (IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_WR_MODE, ref m_SpiMode) < 0)
+            if (IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_WR_MODE, ref _mSpiMode) < 0)
             {
                 return -1;
             }
-            if (IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_RD_MODE, ref m_SpiMode) < 0)
+            if (IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_RD_MODE, ref _mSpiMode) < 0)
             {
                 return -1;
             }
-            if (IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_WR_BITS_PER_WORD, ref m_SpiBPW) < 0)
+            if (IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_WR_BITS_PER_WORD, ref _mSpiBpw) < 0)
             {
                 return -1;
             }
-            if (IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_RD_BITS_PER_WORD, ref m_SpiBPW) < 0)
+            if (IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_RD_BITS_PER_WORD, ref _mSpiBpw) < 0)
             {
                 return -1;
             }
-            if (IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_WR_MAX_SPEED_HZ, ref m_SpiSpeed) < 0)
+            if (IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_WR_MAX_SPEED_HZ, ref _mSpiSpeed) < 0)
             {
                 return -1;
             }
-            if (IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_RD_MAX_SPEED_HZ, ref m_SpiSpeed) < 0)
+            if (IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_RD_MAX_SPEED_HZ, ref _mSpiSpeed) < 0)
             {
                 return -1;
             }

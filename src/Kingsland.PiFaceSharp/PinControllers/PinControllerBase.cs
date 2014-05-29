@@ -18,7 +18,6 @@ namespace Kingsland.PiFaceSharp.PinControllers
         /// A reference to the PiFace Digital device to control the output pins on.
         /// </param>
         protected PinControllerBase(IPiFaceDevice piface)
-            : base()
         {
             this.PiFace = piface;
         }

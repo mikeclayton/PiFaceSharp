@@ -13,8 +13,8 @@ namespace Kingsland.PiFaceSharp.PinControllers
 
         #region Fields
 
-        private byte m_OutputPin;
-        private int m_Interval;
+        private byte _mOutputPin;
+        private int _mInterval;
 
         #endregion
 
@@ -47,15 +47,15 @@ namespace Kingsland.PiFaceSharp.PinControllers
         {
             get
             {
-                return m_OutputPin;
+                return _mOutputPin;
             }
             private set
             {
-                if (m_OutputPin > 7)
+                if (_mOutputPin > 7)
                 {
                     throw new System.ArgumentOutOfRangeException("value", "Value must be 7 or less.");
                 }
-                m_OutputPin = value;
+                _mOutputPin = value;
             }
         }
 
@@ -66,7 +66,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
         {
             get
             {
-                return m_Interval;
+                return _mInterval;
             }
             private set
             {
@@ -75,7 +75,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
                     // there's a practical limit to how fast the output pins can be updated
                     throw new System.ArgumentOutOfRangeException("value", "Value must be 10 or less.");
                 }
-                m_Interval = value;
+                _mInterval = value;
             }
         }
         

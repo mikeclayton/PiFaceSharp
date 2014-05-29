@@ -36,7 +36,7 @@ namespace Kingsland.PiFaceSharp.Server
             }
             else
             {
-                address = System.Net.IPAddress.Parse(settings.ServerAddress);
+                address = IPAddress.Parse(settings.ServerAddress);
             }
 
             // get the port to run the server on

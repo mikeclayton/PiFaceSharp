@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Kingsland.PiFaceSharp.Emulators
 {
@@ -19,18 +16,6 @@ namespace Kingsland.PiFaceSharp.Emulators
         public event EventHandler OutputPinStateChanged;
         public event EventHandler InputPinStateChanged;
 
-        #endregion
-
-        #region Constructors
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public PiFaceEmulator()
-            : base()
-        {
-        }
-        
         #endregion
 
         #region Properties
@@ -72,7 +57,6 @@ namespace Kingsland.PiFaceSharp.Emulators
         /// <summary>
         /// Gets the bitmask containing the state of all output pins.
         /// </summary>
-        /// <param name="pin"></param>
         /// <returns>
         /// A bitmask containing true for each output pin that is HIGH, and false if it is LOW.
         /// </returns>
@@ -86,10 +70,10 @@ namespace Kingsland.PiFaceSharp.Emulators
         /// Update the state of a single output pin.
         /// </summary>
         /// <param name="pin"></param>
-        /// <param name="value"></param>
+        /// <param name="enabled"></param>
         public void SetOutputPinState(byte pin, bool enabled)
         {
-            byte mask = (byte)(1 << pin);
+            var mask = (byte)(1 << pin);
             if (enabled)
             {
                 this.OutputPinStates |= mask;
@@ -124,33 +108,33 @@ namespace Kingsland.PiFaceSharp.Emulators
             var mask = (byte)(1 << pin);
             var state = this.InputPinStates;
             return ((state & mask) == 0);
+
         }
 
         /// <summary>
         /// Gets a bitmask containing the state of all input pins.
         /// </summary>
-        /// <param name="pin"></param>
         /// <returns>
         /// A bitmask containing true for each input pin that is HIGH, and false if it is LOW.
         /// </returns>
         public byte GetInputPinStates()
         {
             var state = this.InputPinStates;
-            return state;
+            return this.InputPinStates;
         }
 
         /// <summary>
         /// Update the state of a single input pin.
         /// </summary>
         /// <param name="pin"></param>
-        /// <param name="value"></param>
+        /// <param name="enabled"></param>
         /// <remarks>
         /// This method is provided to support the PiFaceEmulator, and will 
         /// throw an exception if called on a physical PiFaceDevice.
         /// </remarks>
         public void SetInputPinState(byte pin, bool enabled)
         {
-            byte mask = (byte)(1 << pin);
+            var mask = (byte)(1 << pin);
             if (enabled)
             {
                 this.InputPinStates |= mask;

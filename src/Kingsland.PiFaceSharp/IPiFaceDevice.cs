@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Kingsland.PiFaceSharp
+﻿namespace Kingsland.PiFaceSharp
 {
 
     /// <summary>
@@ -24,7 +19,6 @@ namespace Kingsland.PiFaceSharp
         /// <summary>
         /// Gets the bitmask containing the state of all output pins.
         /// </summary>
-        /// <param name="pin"></param>
         /// <returns>
         /// A bitmask containing true for each output pin that is HIGH, and false if it is LOW.
         /// </returns>
@@ -34,7 +28,7 @@ namespace Kingsland.PiFaceSharp
         /// Update the state of a single output pin.
         /// </summary>
         /// <param name="pin"></param>
-        /// <param name="value"></param>
+        /// <param name="enabled"></param>
         void SetOutputPinState(byte pin, bool enabled);
 
         /// <summary>
@@ -56,7 +50,6 @@ namespace Kingsland.PiFaceSharp
         /// <summary>
         /// Gets a bitmask containing the state of all input pins.
         /// </summary>
-        /// <param name="pin"></param>
         /// <returns>
         /// A bitmask containing true for each input pin that is HIGH, and false if it is LOW.
         /// </returns>
@@ -66,7 +59,7 @@ namespace Kingsland.PiFaceSharp
         /// Update the state of a single input pin.
         /// </summary>
         /// <param name="pin"></param>
-        /// <param name="value"></param>
+        /// <param name="enabled"></param>
         /// <remarks>
         /// This method is provided to support the PiFaceEmulator, and will 
         /// throw an exception if called on a physical PiFaceDevice.

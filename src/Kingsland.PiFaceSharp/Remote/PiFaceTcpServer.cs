@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -27,7 +25,7 @@ namespace Kingsland.PiFaceSharp.Remote
 
         #region Fields
 
-        private object m_LockObject = new object();
+        private readonly object _mLockObject = new object();
 
         #endregion
 
@@ -42,7 +40,6 @@ namespace Kingsland.PiFaceSharp.Remote
         /// </param>
         /// <param name="localEndPoint"></param>
         public PiFaceTcpServer(IPiFaceDevice device, IPEndPoint localEndPoint)
-            : base()
         {
             // validate the parameters
             if (device == null) { throw new System.ArgumentNullException("device"); }
@@ -101,10 +98,12 @@ namespace Kingsland.PiFaceSharp.Remote
         /// </summary>
         public void Start()
         {
-            lock (m_LockObject)
+            lock (_mLockObject)
             {
-                this.WorkerThread = new Thread(this.ExecuteMainLoop);
-                this.WorkerThread.IsBackground = true;
+                this.WorkerThread = new Thread(this.ExecuteMainLoop)
+                {
+                    IsBackground = true
+                };
                 this.WorkerThread.Start();
                 this.Status = PiFaceTcpServerStatus.Running;
             }
@@ -115,7 +114,7 @@ namespace Kingsland.PiFaceSharp.Remote
         /// </summary>
         public void Stop()
         {
-            lock (m_LockObject)
+            lock (_mLockObject)
             {
                 switch (this.Status)
                 {
