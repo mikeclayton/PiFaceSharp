@@ -15,7 +15,7 @@ function Install-TeamCityNUnitAddIn()
     write-host "--------------------------";
     write-host "Install-TeamCityNUnitAddIn";
     write-host "--------------------------";
-    write-host "nunit addin = $teamcityAddinPath";
+    write-host "nunit addin = $teamcityNUnitAddin";
     write-host "runner dir  = $nunitRunnersFolder";
 
     # get the version number of the nunit runner
