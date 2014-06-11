@@ -16,6 +16,7 @@ namespace Kingsland.PiFaceSharp.SampleConsole
             // toggle each output pin on and off 50 times
             for (byte pin = 0; pin < 8; pin++)
             {
+                Console.WriteLine("toggling input pin {0}", pin);
                 var state = true;
                 for (var i = 0; i < 50; i++)
                 {
@@ -28,7 +29,7 @@ namespace Kingsland.PiFaceSharp.SampleConsole
             // read the current state of each input pin
             for (byte pin = 0; pin < 8; pin++)
             {
-                Console.Write(piface.GetInputPinState(pin) + " ");
+                Console.WriteLine("input pin {0} = {1}", pin, piface.GetInputPinState(pin));
             }
 
         }
