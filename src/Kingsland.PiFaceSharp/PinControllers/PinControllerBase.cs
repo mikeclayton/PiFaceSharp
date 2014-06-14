@@ -1,5 +1,4 @@
-﻿
-namespace Kingsland.PiFaceSharp.PinControllers
+﻿namespace Kingsland.PiFaceSharp.PinControllers
 {
 
     /// <summary>

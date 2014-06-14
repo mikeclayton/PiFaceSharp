@@ -22,8 +22,8 @@ namespace Kingsland.PiFaceSharp.Spi
         {
             this.Bus = bus;
             this.ChipSelect = chipSelect;
-            this.DeviceName = deviceName;
             this.SpiDelay = 0;
+            this.DeviceName = deviceName;
         }
 
         ~HardwareSpiDevice()
@@ -113,16 +113,16 @@ namespace Kingsland.PiFaceSharp.Spi
         private const byte CMD_WRITE = 0x40;
         private const byte CMD_READ = 0x41;
 
-        public void Open(uint mode)
+        public void Open(int flags)
         {
             if (this.DeviceHandle != 0)
             {
                 throw new System.IO.IOException("Device is already open.");
             }
-            var result = FCntl.open(this.DeviceName, FCntl.O_RDWR);
+            var result = FCntl.open(this.DeviceName, flags);
             if (result < 0)
             {
-                throw new System.IO.IOException("Failed to open device.");
+                throw new System.IO.IOException(string.Format("Failed to open device - error {0}.", result));
             }
             this.DeviceHandle = result;
             this.InitTxRxBuffers();
@@ -137,7 +137,7 @@ namespace Kingsland.PiFaceSharp.Spi
             var result = FCntl.close(this.DeviceHandle);
             if (result < 0)
             {
-                throw new System.IO.IOException("Failed to close device.");
+                throw new System.IO.IOException(string.Format("Failed to close device - error {0}.", result));
             }
             this.DeviceHandle = 0;
             this.FreeTxRxBuffers();

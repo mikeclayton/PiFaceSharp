@@ -39,6 +39,8 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.lnkGitHub = new System.Windows.Forms.LinkLabel();
+            this.txtLog = new System.Windows.Forms.TextBox();
+            this.chkLogEvents = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.PiFacePreview)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -111,7 +113,7 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lblStatus});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 242);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 440);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(464, 22);
             this.statusStrip1.SizingGrip = false;
@@ -134,11 +136,35 @@
             this.lnkGitHub.Text = "https://github.com/mikeclayton/PiFaceSharp";
             this.lnkGitHub.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkGitHub_LinkClicked);
             // 
+            // txtLog
+            // 
+            this.txtLog.Location = new System.Drawing.Point(12, 242);
+            this.txtLog.Multiline = true;
+            this.txtLog.Name = "txtLog";
+            this.txtLog.ReadOnly = true;
+            this.txtLog.Size = new System.Drawing.Size(440, 170);
+            this.txtLog.TabIndex = 10;
+            this.txtLog.WordWrap = false;
+            // 
+            // chkLogEvents
+            // 
+            this.chkLogEvents.AutoSize = true;
+            this.chkLogEvents.Checked = true;
+            this.chkLogEvents.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkLogEvents.Location = new System.Drawing.Point(15, 418);
+            this.chkLogEvents.Name = "chkLogEvents";
+            this.chkLogEvents.Size = new System.Drawing.Size(79, 17);
+            this.chkLogEvents.TabIndex = 11;
+            this.chkLogEvents.Text = "Log events";
+            this.chkLogEvents.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(464, 264);
+            this.ClientSize = new System.Drawing.Size(464, 462);
+            this.Controls.Add(this.chkLogEvents);
+            this.Controls.Add(this.txtLog);
             this.Controls.Add(this.lnkGitHub);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.btnStop);
@@ -150,6 +176,7 @@
             this.Controls.Add(this.PiFacePreview);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MinimumSize = new System.Drawing.Size(480, 500);
             this.Name = "Form1";
             this.Text = "Virtual PiFace";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -173,6 +200,8 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel lblStatus;
         private System.Windows.Forms.LinkLabel lnkGitHub;
+        private System.Windows.Forms.TextBox txtLog;
+        private System.Windows.Forms.CheckBox chkLogEvents;
     }
 }
 

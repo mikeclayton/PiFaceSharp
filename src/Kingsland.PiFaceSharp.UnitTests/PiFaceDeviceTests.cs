@@ -1,6 +1,5 @@
 ﻿using Kingsland.PiFaceSharp.Spi;
 using NUnit.Framework;
-using System;
 
 namespace Kingsland.PiFaceSharp.UnitTests
 {
@@ -55,7 +54,7 @@ namespace Kingsland.PiFaceSharp.UnitTests
         }
 
         [TestFixture]
-        public class SetInputPinStatesMethod
+        public class GetInputPinStatesMethod
         {
 
             [TestCase(0)]
@@ -66,6 +65,12 @@ namespace Kingsland.PiFaceSharp.UnitTests
                 spiDevice.WriteByte((byte)PiFaceRegisterAddress.GPIOB, bitMask);
                 Assert.AreEqual(piface.GetInputPinStates(), bitMask);
             }
+
+        }
+
+        [TestFixture]
+        public sealed class GetInputPinStateMethod
+        {
 
             // all off
             [TestCase(0, new[] { true, true, true, true, true, true, true, true })]

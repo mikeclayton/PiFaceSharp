@@ -36,7 +36,7 @@ namespace Kingsland.PiFaceSharp.Spi
 
         #region ISpiDevice Interface
 
-        public void Open(uint mode)
+        public void Open(int flags)
         {
             if (this.IsOpen)
             {

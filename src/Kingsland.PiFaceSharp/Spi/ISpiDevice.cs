@@ -7,7 +7,7 @@ namespace Kingsland.PiFaceSharp.Spi
     public interface ISpiDevice
     {
 
-        void Open(uint mode);
+        void Open(int flags);
         void Close();
 
         byte ReadByte(byte address);

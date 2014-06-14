@@ -1,5 +1,4 @@
-﻿using System;
-using Kingsland.PiFaceSharp.Spi.Native;
+﻿using Kingsland.PiFaceSharp.Spi.Native;
 using System.ComponentModel;
 
 namespace Kingsland.PiFaceSharp.Spi

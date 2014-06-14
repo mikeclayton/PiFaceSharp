@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
-using System.Text;
 using System.Windows.Forms;
-using Kingsland.PiFaceSharp;
 using Kingsland.PiFaceSharp.Emulators;
 using Kingsland.PiFaceSharp.Remote;
 using System.Diagnostics;
@@ -74,6 +67,8 @@ namespace Kingsland.PiFaceSharp.Emulator
             var address = PiFaceTcpHelper.GetLocalIPAddress();
             var endpoint = new IPEndPoint(address, 43596);
             this.PiFaceTcpServer = new PiFaceTcpServer(this.PiFaceEmulator, endpoint);
+            this.PiFaceTcpServer.MessageReceived += this.PiFaceTcpServer_MessageReceived;
+            this.PiFaceTcpServer.ResponseSent += this.PiFaceTcpServer_ResponseSent;
             this.PiFaceTcpServer.Start();
             // update form controls
             txtLocalAddress.Enabled = false;
@@ -81,6 +76,7 @@ namespace Kingsland.PiFaceSharp.Emulator
             btnStart.Enabled = false;
             btnStop.Enabled = true;
             lblStatus.Text = "Started.";
+            this.LogEvent("server started");
         }
 
         private void btnStop_Click(object sender, EventArgs e)
@@ -93,6 +89,7 @@ namespace Kingsland.PiFaceSharp.Emulator
             btnStart.Enabled = true;
             btnStop.Enabled = false;
             lblStatus.Text = "Stopped.";
+            this.LogEvent("server stopped");
         }
 
         private void lnkGitHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -112,16 +109,32 @@ namespace Kingsland.PiFaceSharp.Emulator
 
         private void PiFaceEmulator_OnOutputPinStateChanged(object sender, EventArgs e)
         {
+            this.LogEvent("output pin state changed");
             this.RefreshPiFacePreview();
         }
 
         private void PiFaceEmulator_OnInputPinStateChanged(object sender, EventArgs e)
         {
+            this.LogEvent("input pin state changed");
             this.RefreshPiFacePreview();
         }
 
         #endregion
-        
+
+        #region Server Event handlers
+
+        private void PiFaceTcpServer_MessageReceived(object sender, MessageReceivedEventArgs e)
+        {
+            this.LogEvent(string.Format("message received - {0}", e.PacketType));
+        }
+
+        private void PiFaceTcpServer_ResponseSent(object sender, ResponseSentEventArgs e)
+        {
+            this.LogEvent("response sent");
+        }
+
+        #endregion
+
         private void RefreshPiFacePreview()
         {
 
@@ -157,6 +170,14 @@ namespace Kingsland.PiFaceSharp.Emulator
             this.Invoke((MethodInvoker)delegate {
                 this.PiFacePreview.Image = bitmap;
             });
+        }
+
+        private void LogEvent(string message)
+        {
+            if(chkLogEvents.Checked)
+            {
+                txtLog.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " " + message + "\r\n";
+            }
         }
 
     }

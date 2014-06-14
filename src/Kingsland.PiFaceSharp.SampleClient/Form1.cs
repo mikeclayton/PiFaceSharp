@@ -36,6 +36,19 @@ namespace Kingsland.PiFaceSharp.SampleClient
             var remoteEndPoint = new IPEndPoint(PiFaceTcpHelper.GetLocalIPAddress(), 43596);
             this.PiFaceClient = new PiFaceTcpClient(localEndPoint, remoteEndPoint);
             this.PiFaceClient.Connect();
+            timer1.Enabled = true;
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            chkInputPin0.Checked = this.PiFaceClient.GetInputPinState(0);
+            chkInputPin1.Checked = this.PiFaceClient.GetInputPinState(1);
+            chkInputPin2.Checked = this.PiFaceClient.GetInputPinState(2);
+            chkInputPin3.Checked = this.PiFaceClient.GetInputPinState(3);
+            chkInputPin4.Checked = this.PiFaceClient.GetInputPinState(4);
+            chkInputPin5.Checked = this.PiFaceClient.GetInputPinState(5);
+            chkInputPin6.Checked = this.PiFaceClient.GetInputPinState(6);
+            chkInputPin7.Checked = this.PiFaceClient.GetInputPinState(7);
         }
 
         #endregion

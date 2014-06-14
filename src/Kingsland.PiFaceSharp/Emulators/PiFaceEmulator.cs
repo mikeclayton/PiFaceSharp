@@ -127,7 +127,6 @@ namespace Kingsland.PiFaceSharp.Emulators
         /// </returns>
         public byte GetInputPinStates()
         {
-            var state = this.InputPinStates;
             return this.InputPinStates;
         }
 

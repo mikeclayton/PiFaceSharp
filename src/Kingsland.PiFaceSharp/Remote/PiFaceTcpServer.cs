@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -18,7 +19,47 @@ namespace Kingsland.PiFaceSharp.Remote
 
         #region Fields
 
-        private readonly object _mLockObject = new object();
+        private readonly object _lockObject = new object();
+
+        #endregion
+
+        #region Events
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public event EventHandler<MessageReceivedEventArgs> MessageReceived;
+
+        // <summary>
+        // 
+        // </summary>
+        public event EventHandler<ResponseSentEventArgs> ResponseSent;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        private void OnMessageReceived(MessageReceivedEventArgs e)
+        {
+            var handler = this.MessageReceived;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        private void OnResponseSent(ResponseSentEventArgs e)
+        {
+            var handler = this.ResponseSent;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
 
         #endregion
 
@@ -35,8 +76,14 @@ namespace Kingsland.PiFaceSharp.Remote
         public PiFaceTcpServer(IPiFaceDevice device, IPEndPoint localEndPoint)
         {
             // validate the parameters
-            if (device == null) { throw new System.ArgumentNullException("device"); }
-            if (localEndPoint == null) { throw new System.ArgumentNullException("localEndPoint"); }
+            if (device == null)
+            {
+                throw new System.ArgumentNullException("device");
+            }
+            if (localEndPoint == null)
+            {
+                throw new System.ArgumentNullException("localEndPoint");
+            }
             // copy the parameters locally
             this.PiFaceDevice = device;
             this.LocalEndPoint = localEndPoint;
@@ -91,7 +138,7 @@ namespace Kingsland.PiFaceSharp.Remote
         /// </summary>
         public void Start()
         {
-            lock (_mLockObject)
+            lock (_lockObject)
             {
                 this.WorkerThread = new Thread(this.ExecuteMainLoop)
                 {
@@ -107,7 +154,7 @@ namespace Kingsland.PiFaceSharp.Remote
         /// </summary>
         public void Stop()
         {
-            lock (_mLockObject)
+            lock (_lockObject)
             {
                 switch (this.Status)
                 {
@@ -184,26 +231,29 @@ namespace Kingsland.PiFaceSharp.Remote
             this.ClientConnected.Set();
         }
 
-        private void ProcessMessage(NetworkStream stream)
+        private void ProcessMessage(Stream stream)
         {
             // read the next message type
             var type = (PacketType)stream.ReadByte();
             // read the byte count
             var dataLength = (byte)stream.ReadByte();
             // read the message data
-            var data = (byte[])null;
+            var data = default(byte[]);
             if (dataLength > 0)
             {
                 data = PiFaceTcpHelper.ReadBytes(stream, dataLength);
             }
+            this.OnMessageReceived(new MessageReceivedEventArgs(type, data));
             // process the message
             var result = new List<Byte>();
             switch (type)
             {
                 case PacketType.GetOutputPinState:
+                {
                     var state = this.PiFaceDevice.GetOutputPinState(data[0]);
-                    result.Add((byte)(state ? 0 : 1));
+                    result.Add((byte) (state ? 0 : 1));
                     break;
+                }
                 case PacketType.GetOutputPinStates:
                     result.Add(this.PiFaceDevice.GetOutputPinStates());
                     break;
@@ -213,6 +263,12 @@ namespace Kingsland.PiFaceSharp.Remote
                 case PacketType.SetOutputPinStates:
                     this.PiFaceDevice.SetOutputPinStates(data[0]);
                     break;
+                case PacketType.GetInputPinState:
+                {
+                    var state = this.PiFaceDevice.GetInputPinState(data[0]);
+                    result.Add((byte) (state ? 0 : 1));
+                    break;
+                }
                 case PacketType.GetInputPinStates:
                     result.Add(this.PiFaceDevice.GetInputPinStates());
                     break;
@@ -226,12 +282,14 @@ namespace Kingsland.PiFaceSharp.Remote
                     throw new System.InvalidOperationException();
             }
             // write the result
+            data = result.ToArray();
             stream.WriteByte((byte)result.Count);
             if (result.Count > 0)
             {
-                stream.Write(result.ToArray(), 0, result.Count);
+                stream.Write(data, 0, result.Count);
             }
             stream.Flush();
+            this.OnResponseSent(new ResponseSentEventArgs(data));
         }
         
         #endregion
