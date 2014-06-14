@@ -13,11 +13,6 @@ namespace Kingsland.PiFaceSharp.Spi
 
         #region Constants
 
-        /// <summary>
-        /// The default name of the PiFace device.
-        /// </summary>
-        public const string DefaultDeviceName = "/dev/spidev0.0";
-
         private const byte CMD_WRITE = 0x40;
         private const byte CMD_READ = 0x41;
 
@@ -25,7 +20,7 @@ namespace Kingsland.PiFaceSharp.Spi
 
         #region Fields
 
-        private PiFacePullUpMode _mPortBPullUpMode;
+        private PiFacePullUpMode _portBPullUpMode;
 
         #endregion
 
@@ -35,7 +30,7 @@ namespace Kingsland.PiFaceSharp.Spi
         /// Creates a new PiFace object using the default device name.
         /// </summary>
         public PiFaceDevice()
-            : this(PiFaceDevice.DefaultDeviceName)
+            : this("/dev/spidev0.0")
         {
         }
 
@@ -47,7 +42,19 @@ namespace Kingsland.PiFaceSharp.Spi
         /// </param>
         public PiFaceDevice(string deviceName)
         {
-            this.DeviceName = deviceName;
+            this.SpiDevice = new HardwareSpiDevice(0, 0, deviceName);
+            this.Initialize();
+        }
+
+        /// <summary>
+        /// Creates a new PiFace object using the specified spi device.
+        /// </summary>
+        /// <param name="spiDevice">
+        /// The spi device to connect to.
+        /// </param>
+        internal PiFaceDevice(ISpiDevice spiDevice)
+        {
+            this.SpiDevice = spiDevice;
             this.Initialize();
         }
 
@@ -56,18 +63,9 @@ namespace Kingsland.PiFaceSharp.Spi
         #region Properties
 
         /// <summary>
-        /// Gets the name of the device this object is connected to.
+        /// Gets or sets an SpiDevice that represents the SPI interface for this device.
         /// </summary>
-        public string DeviceName
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets or sets an SpiDevice that represents the SPI interface.
-        /// </summary>
-        private SpiDevice SpiDevice
+        private ISpiDevice SpiDevice
         {
             get;
             set;
@@ -75,11 +73,13 @@ namespace Kingsland.PiFaceSharp.Spi
 
         /// <summary>
         /// Gets or sets the last-written state of the output pins.
+        /// </summary>
+        /// <remarks>
         /// We can't write bit states for individual pins on the MCP23S17, so
         /// this property caches the last known value that we wrote. Otherwise
         /// we'd have to read the states back from it every time we want to
         /// change a single pin's state.
-        /// </summary>
+        /// </remarks>
         private byte OutputPinBuffer
         {
             get;
@@ -90,7 +90,7 @@ namespace Kingsland.PiFaceSharp.Spi
         {
             get
             {
-                return _mPortBPullUpMode;
+                return _portBPullUpMode;
             }
             set
             {
@@ -105,7 +105,7 @@ namespace Kingsland.PiFaceSharp.Spi
                     default:
                         throw new System.ArgumentOutOfRangeException("value");
                 }
-                _mPortBPullUpMode = value;
+                _portBPullUpMode = value;
             }
         }
 
@@ -251,7 +251,6 @@ namespace Kingsland.PiFaceSharp.Spi
         /// <returns></returns>
         private int Initialize()
         {
-            this.SpiDevice = new SpiDevice(0, 0, this.DeviceName);
             this.SpiDevice.Open(FCntl.O_RDWR);
             //// set the SPI parameters
             this.SpiDevice.SetMode(SpiDev.SPI_MODE_0);

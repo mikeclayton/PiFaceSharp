@@ -1,7 +1,7 @@
 ﻿namespace Kingsland.PiFaceSharp
 {
 
-    private enum PiFacePullUpMode
+    internal enum PiFacePullUpMode
     {
         Off = 0,
         PullDown = 1,

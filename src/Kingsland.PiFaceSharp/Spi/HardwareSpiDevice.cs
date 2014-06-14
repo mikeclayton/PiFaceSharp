@@ -5,7 +5,7 @@ using Kingsland.PiFaceSharp.Spi.Native;
 namespace Kingsland.PiFaceSharp.Spi
 {
 
-    internal class SpiDevice : IDisposable
+    internal sealed class HardwareSpiDevice : ISpiDevice, IDisposable
     {
 
         #region Fields
@@ -18,7 +18,7 @@ namespace Kingsland.PiFaceSharp.Spi
 
         #region Constructors
 
-        public SpiDevice(uint bus, uint chipSelect, string deviceName)
+        public HardwareSpiDevice(uint bus, uint chipSelect, string deviceName)
         {
             this.Bus = bus;
             this.ChipSelect = chipSelect;
@@ -26,7 +26,7 @@ namespace Kingsland.PiFaceSharp.Spi
             this.SpiDelay = 0;
         }
 
-        ~SpiDevice()
+        ~HardwareSpiDevice()
         {
             this.Dispose(false);
         }
@@ -84,7 +84,31 @@ namespace Kingsland.PiFaceSharp.Spi
 
         #endregion
 
-        #region IO Methods
+        #region Methods
+
+        private void InitTxRxBuffers()
+        {
+            // create unmanaged transmit and receive buffers
+            this._txBufferPtr = Marshal.AllocHGlobal(3);
+            this._rxBufferPtr = Marshal.AllocHGlobal(3);
+        }
+
+        private void FreeTxRxBuffers()
+        {
+            // release unmanaged transmit and receive buffers
+            if (this._txBufferPtr != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(this._txBufferPtr);
+            }
+            if (this._txBufferPtr != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(this._rxBufferPtr);
+            }
+        }
+
+        #endregion
+
+        #region ISpiDevice Interface
 
         private const byte CMD_WRITE = 0x40;
         private const byte CMD_READ = 0x41;
@@ -119,26 +143,6 @@ namespace Kingsland.PiFaceSharp.Spi
             this.FreeTxRxBuffers();
         }
 
-        private void InitTxRxBuffers()
-        {
-            // create unmanaged transmit and receive buffers
-            this._txBufferPtr = Marshal.AllocHGlobal(3);
-            this._rxBufferPtr = Marshal.AllocHGlobal(3);
-        }
-
-        private void FreeTxRxBuffers()
-        {
-            // release unmanaged transmit and receive buffers
-            if (this._txBufferPtr != IntPtr.Zero)
-            {
-                Marshal.FreeHGlobal(this._txBufferPtr);
-            }
-            if (this._txBufferPtr != IntPtr.Zero)
-            {
-                Marshal.FreeHGlobal(this._rxBufferPtr);
-            }
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -147,8 +151,8 @@ namespace Kingsland.PiFaceSharp.Spi
         public byte ReadByte(byte address)
         {
             //Console.WriteLine("    spiBufTx = {0} {1} {2}", CMD_READ, address, 0);
-            Marshal.Copy(new byte[] { CMD_READ, address, 0 }, 0, this._txBufferPtr, SpiDevice.TxRxBufferLength);
-            Marshal.Copy(new byte[] { 0, 0, 0 }, 0, this._rxBufferPtr, SpiDevice.TxRxBufferLength);
+            Marshal.Copy(new byte[] { CMD_READ, address, 0 }, 0, this._txBufferPtr, HardwareSpiDevice.TxRxBufferLength);
+            Marshal.Copy(new byte[] { 0, 0, 0 }, 0, this._rxBufferPtr, HardwareSpiDevice.TxRxBufferLength);
             // build the command
             var cmd = SpiDev.SPI_IOC_MESSAGE(1);
             // build the spi transfer structure
@@ -156,7 +160,7 @@ namespace Kingsland.PiFaceSharp.Spi
             {
                 tx_buf = (UInt64)this._txBufferPtr.ToInt64(),
                 rx_buf = (UInt64)this._rxBufferPtr.ToInt64(),
-                len = SpiDevice.TxRxBufferLength,
+                len = HardwareSpiDevice.TxRxBufferLength,
                 delay_usecs = this.SpiDelay,
                 speed_hz = this.MaxSpeedHz,
                 bits_per_word = (byte)this.BitsPerWord
@@ -170,7 +174,7 @@ namespace Kingsland.PiFaceSharp.Spi
             // return the result. every byte transmitted results in a
             // data or dummy byte received, so we have to skip the
             // leading dummy bytes to read out actual data bytes.
-            var bufOut = new byte[SpiDevice.TxRxBufferLength];
+            var bufOut = new byte[HardwareSpiDevice.TxRxBufferLength];
             Marshal.Copy(this._txBufferPtr, bufOut, 0, bufOut.Length);
             Marshal.Copy(this._rxBufferPtr, bufOut, 0, bufOut.Length);
             return bufOut[2];
@@ -183,8 +187,8 @@ namespace Kingsland.PiFaceSharp.Spi
         /// <param name="value"></param>
         public void WriteByte(byte address, byte value)
         {
-            Marshal.Copy(new byte[] { CMD_WRITE, address, value }, 0, this._txBufferPtr, SpiDevice.TxRxBufferLength);
-            Marshal.Copy(new byte[] { 0, 0, 0 }, 0, this._rxBufferPtr, SpiDevice.TxRxBufferLength);
+            Marshal.Copy(new byte[] { CMD_WRITE, address, value }, 0, this._txBufferPtr, HardwareSpiDevice.TxRxBufferLength);
+            Marshal.Copy(new byte[] { 0, 0, 0 }, 0, this._rxBufferPtr, HardwareSpiDevice.TxRxBufferLength);
             // build the command
             var cmd = SpiDev.SPI_IOC_MESSAGE(1);
             // build the spi transfer structure
@@ -192,7 +196,7 @@ namespace Kingsland.PiFaceSharp.Spi
             {
                 tx_buf = (UInt64)this._txBufferPtr.ToInt64(),
                 rx_buf = (UInt64)this._rxBufferPtr.ToInt64(),
-                len = SpiDevice.TxRxBufferLength,
+                len = HardwareSpiDevice.TxRxBufferLength,
                 delay_usecs = this.SpiDelay,
                 speed_hz = this.MaxSpeedHz,
                 bits_per_word = (byte)this.BitsPerWord
@@ -269,7 +273,7 @@ namespace Kingsland.PiFaceSharp.Spi
             GC.SuppressFinalize(this);
         }
 
-        protected void Dispose(Boolean disposing)
+        private void Dispose(Boolean disposing)
         {
             if (this.DeviceHandle != 0)
             {
