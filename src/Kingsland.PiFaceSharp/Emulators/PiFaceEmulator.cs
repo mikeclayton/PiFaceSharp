@@ -49,6 +49,10 @@ namespace Kingsland.PiFaceSharp.Emulators
         /// <returns></returns>
         public bool GetOutputPinState(byte pin)
         {
+            if (pin > 7)
+            {
+                throw new System.ArgumentOutOfRangeException("pin", "pin must be in the range 0-7");
+            }
             var mask = (byte)(1 << pin);
             var state = this.OutputPinStates;
             return (state & mask) == mask;
@@ -105,6 +109,10 @@ namespace Kingsland.PiFaceSharp.Emulators
         /// </returns>
         public bool GetInputPinState(byte pin)
         {
+            if (pin > 7)
+            {
+                throw new System.ArgumentOutOfRangeException("pin", "pin must be in the range 0-7");
+            }
             var mask = (byte)(1 << pin);
             var state = this.InputPinStates;
             return ((state & mask) == 0);
@@ -134,6 +142,10 @@ namespace Kingsland.PiFaceSharp.Emulators
         /// </remarks>
         public void SetInputPinState(byte pin, bool enabled)
         {
+            if (pin > 7)
+            {
+                throw new System.ArgumentOutOfRangeException("pin", "pin must be in the range 0-7");
+            }
             var mask = (byte)(1 << pin);
             if (enabled)
             {

@@ -12,7 +12,7 @@ namespace Kingsland.PiFaceSharp.Spi.Native
     {
 
         /// <summary>
-        /// 
+        /// See http://man7.org/linux/man-pages/man2/ioctl.2.html
         /// </summary>
         /// <param name="fd"></param>
         /// <param name="cmd"></param>
@@ -20,10 +20,10 @@ namespace Kingsland.PiFaceSharp.Spi.Native
         /// <returns></returns>
         /// <see cref="/usr/include/asm-generic/ioctl.h"/>
         [DllImport("libc", EntryPoint = "ioctl", SetLastError = true)]
-        public static extern int ioctl(uint fd, uint cmd, ref uint arg);
+        public static extern int ioctl(int fd, uint cmd, ref uint arg);
 
         /// <summary>
-        /// 
+        /// See http://man7.org/linux/man-pages/man2/ioctl.2.html
         /// </summary>
         /// <param name="fd"></param>
         /// <param name="cmd"></param>
@@ -31,10 +31,10 @@ namespace Kingsland.PiFaceSharp.Spi.Native
         /// <returns></returns>
         /// <see cref="/usr/include/asm-generic/ioctl.h"/>
         [DllImport("libc", EntryPoint = "ioctl", SetLastError = true)]
-        public static extern int ioctl(uint fd, uint cmd, IntPtr arg);
+        public static extern int ioctl(int fd, uint cmd, IntPtr arg);
 
         /// <summary>
-        /// 
+        /// See http://man7.org/linux/man-pages/man2/ioctl.2.html
         /// </summary>
         /// <param name="fd"></param>
         /// <param name="cmd"></param>
@@ -42,7 +42,7 @@ namespace Kingsland.PiFaceSharp.Spi.Native
         /// <returns></returns>
         /// <see cref="/usr/include/asm-generic/ioctl.h"/>
         [DllImport("libc", EntryPoint = "ioctl", SetLastError = true)]
-        public static extern int ioctl(uint fd, uint cmd, ref SpiDev.spi_ioc_transfer arg);
+        public static extern int ioctl(int fd, uint cmd, ref SpiDev.spi_ioc_transfer arg);
 
         public const int IOC_NRBITS = 8;
         public const int IOC_TYPEBITS = 8;
