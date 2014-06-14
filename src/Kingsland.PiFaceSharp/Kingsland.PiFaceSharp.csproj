@@ -57,6 +57,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PiFaceIoConfigFlags.cs" />
+    <Compile Include="PiFacePullUpMode.cs" />
+    <Compile Include="PiFaceRegisterAddress.cs" />
     <Compile Include="Remote\PiFaceTcpClient.cs" />
     <Compile Include="Emulators\PiFaceEmulator.cs" />
     <Compile Include="Remote\PiFaceTcpHelper.cs" />
