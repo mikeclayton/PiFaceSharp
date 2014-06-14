@@ -16,13 +16,6 @@ namespace Kingsland.PiFaceSharp.Remote
     public sealed class PiFaceTcpServer
     {
 
-        public enum PiFaceTcpServerStatus
-        {
-            Stopped,
-            Stopping,
-            Running
-        }
-
         #region Fields
 
         private readonly object _mLockObject = new object();

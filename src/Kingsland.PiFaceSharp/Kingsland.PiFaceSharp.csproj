@@ -64,6 +64,7 @@
     <Compile Include="Remote\PiFaceTcpServer.cs" />
     <Compile Include="IPiFaceDevice.cs" />
     <Compile Include="PinControllers\BlinkingPinController.cs" />
+    <Compile Include="Remote\PiFaceTcpServerStatus.cs" />
     <Compile Include="Spi\Native\FCntl.cs" />
     <Compile Include="Spi\Native\Input.cs" />
     <Compile Include="Spi\Native\IoCtl.cs" />
