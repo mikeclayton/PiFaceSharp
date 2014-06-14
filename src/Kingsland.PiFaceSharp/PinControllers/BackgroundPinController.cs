@@ -82,12 +82,15 @@ namespace Kingsland.PiFaceSharp.PinControllers
                     case BackgroundPinControllerStatus.Stopped:
                         Console.WriteLine("starting pin controller thread");
                         this.Status = BackgroundPinControllerStatus.Running;
-                        this.WorkerThread = new Thread(this.Execute);
-                        this.WorkerThread.IsBackground = true;
+                        this.WorkerThread = new Thread(this.Execute)
+                        {
+                            IsBackground = true
+                        };
                         this.WorkerThread.Start();
                         break;
                     default:
-                        throw new System.InvalidOperationException("Cannot start a controller with the status '" + this.Status.ToString() + "'");
+                        throw new System.InvalidOperationException(
+                            string.Format("Cannot start a controller with the status '{0}'", this.Status));
                 }
             }
         }
@@ -112,7 +115,8 @@ namespace Kingsland.PiFaceSharp.PinControllers
                         this.Status = BackgroundPinControllerStatus.Stopped;
                         break;
                     default:
-                        throw new System.InvalidOperationException("Cannot stop a controller with the status '" + this.Status.ToString() + "'");
+                        throw new System.InvalidOperationException(
+                            string.Format("Cannot stop a controller with the status '{0}'", this.Status));
                 }
             }
         }

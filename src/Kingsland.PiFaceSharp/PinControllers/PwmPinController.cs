@@ -19,12 +19,12 @@ namespace Kingsland.PiFaceSharp.PinControllers
 
         #region Fields
 
-        private byte _OutputPin;
+        private byte _outputPin;
 
-        private int _Period;
-        private float _Duty;
-        private int _DutyHighMs;
-        private int _DutyLowMs;
+        private int _period;
+        private float _duty;
+        private int _dutyHighMs;
+        private int _dutyLowMs;
 
         #endregion
 
@@ -72,15 +72,15 @@ namespace Kingsland.PiFaceSharp.PinControllers
         {
             get
             {
-                return _OutputPin;
+                return _outputPin;
             }
             private set
             {
-                if (_OutputPin > 7)
+                if (_outputPin > 7)
                 {
                     throw new System.ArgumentOutOfRangeException("value", "Value must be 7 or less.");
                 }
-                _OutputPin = value;
+                _outputPin = value;
             }
         }
 
@@ -92,7 +92,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
         {
             get
             {
-                return _Period;
+                return _period;
             }
             private set
             {
@@ -108,7 +108,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
         {
             get
             {
-                return _Duty;
+                return _duty;
             }
             set
             {
@@ -134,11 +134,11 @@ namespace Kingsland.PiFaceSharp.PinControllers
                 throw new System.ArgumentOutOfRangeException("duty", "Value must be between 0 and 1.");
             }
             // copy the parameters locally
-            _Period = period;
-            _Duty = duty;
+            _period = period;
+            _duty = duty;
             // calculate the on and off intervals so we don't have to keep doing it in the Execute method
-            _DutyHighMs = (int)(_Duty * _Period);
-            _DutyLowMs = period - _DutyHighMs;
+            _dutyHighMs = (int)(_duty * _period);
+            _dutyLowMs = period - _dutyHighMs;
         }
                
         /// <summary>
@@ -149,15 +149,15 @@ namespace Kingsland.PiFaceSharp.PinControllers
             // run the main loop
             while (this.Status == BackgroundPinControllerStatus.Running)
             {
-                if (_DutyLowMs > 0)
+                if (_dutyLowMs > 0)
                 {
                     this.PiFace.SetOutputPinState(this.OutputPin, false);
-                    Thread.Sleep(_DutyLowMs);
+                    Thread.Sleep(_dutyLowMs);
                 }
-                if (_DutyHighMs > 0)
+                if (_dutyHighMs > 0)
                 {
                     this.PiFace.SetOutputPinState(this.OutputPin, true);
-                    Thread.Sleep(_DutyHighMs);
+                    Thread.Sleep(_dutyHighMs);
                 }
             }
         }
