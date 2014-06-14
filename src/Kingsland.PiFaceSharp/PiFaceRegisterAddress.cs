@@ -3,7 +3,7 @@
 
     // register addresses
     // see https://github.com/piface/pifacecommon/blob/master/pifacecommon/mcp23s17.py
-    internal enum PiFaceRegisterAddress : byte
+    public enum PiFaceRegisterAddress : byte
     {
 
         /// <summary>

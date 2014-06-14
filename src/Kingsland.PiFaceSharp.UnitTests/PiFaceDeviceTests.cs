@@ -1,19 +1,21 @@
-﻿using NUnit.Framework;
+﻿using Kingsland.PiFaceSharp.Spi;
+using NUnit.Framework;
+using System;
 
 namespace Kingsland.PiFaceSharp.UnitTests
 {
 
-    public sealed class PiFaceEmulatorTests
+    public class PiFaceDeviceTests
     {
 
         [TestFixture]
-        public sealed class SetOutputPinStatesMethod
+        public class SetOutputPinStatesMethod
         {
 
             [TestCase(0)]
             public void PropertySetAppliesCorrectBitMask(byte bitMask)
             {
-                var piface = new Emulators.PiFaceEmulator();
+                var piface = new PiFaceDevice(new VirtualSpiDevice());
                 piface.SetOutputPinStates(bitMask);
                 Assert.AreEqual(piface.GetOutputPinStates(), bitMask);
             }
@@ -42,25 +44,26 @@ namespace Kingsland.PiFaceSharp.UnitTests
             [TestCase(170, new[] { false, true, false, true, false, true, false, true })]
             public void PropertySetAppliesCorrectPinStates(byte bitMask, bool[] pinStates)
             {
-                var piface = new Emulators.PiFaceEmulator();
+                var piface = new PiFaceDevice(new VirtualSpiDevice());
                 piface.SetOutputPinStates(bitMask);
                 for (var i = (byte)0; i < pinStates.Length; i++)
                 {
                     Assert.AreEqual(pinStates[i], piface.GetOutputPinState(i));
                 }
             }
-            
+
         }
 
         [TestFixture]
-        public sealed class SetInputPinStatesMethod
+        public class SetInputPinStatesMethod
         {
 
             [TestCase(0)]
             public void PropertySetAppliesCorrectBitMask(byte bitMask)
             {
-                var piface = new Emulators.PiFaceEmulator();
-                piface.SetInputPinStates(bitMask);
+                var spiDevice = new VirtualSpiDevice();
+                var piface = new PiFaceDevice(spiDevice);
+                spiDevice.WriteByte((byte)PiFaceRegisterAddress.GPIOB, bitMask);
                 Assert.AreEqual(piface.GetInputPinStates(), bitMask);
             }
 
@@ -88,8 +91,9 @@ namespace Kingsland.PiFaceSharp.UnitTests
             [TestCase(170, new[] { true, false, true, false, true, false, true, false })]
             public void PropertySetAppliesCorrectPinStates(byte bitMask, bool[] pinStates)
             {
-                var piface = new Emulators.PiFaceEmulator();
-                piface.SetInputPinStates(bitMask);
+                var spiDevice = new VirtualSpiDevice();
+                var piface = new PiFaceDevice(spiDevice);
+                spiDevice.WriteByte((byte)PiFaceRegisterAddress.GPIOB, bitMask);
                 for (var i = (byte)0; i < pinStates.Length; i++)
                 {
                     Assert.AreEqual(pinStates[i], piface.GetInputPinState(i));

@@ -3,7 +3,7 @@
 namespace Kingsland.PiFaceSharp.Spi
 {
 
-    internal sealed class VirtualSpiDevice : ISpiDevice
+    public sealed class VirtualSpiDevice : ISpiDevice
     {
 
         #region Fields

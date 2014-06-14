@@ -1,5 +1,6 @@
 ﻿using System;
 using Kingsland.PiFaceSharp.Spi.Native;
+using System.ComponentModel;
 
 namespace Kingsland.PiFaceSharp.Spi
 {
@@ -52,7 +53,8 @@ namespace Kingsland.PiFaceSharp.Spi
         /// <param name="spiDevice">
         /// The spi device to connect to.
         /// </param>
-        internal PiFaceDevice(ISpiDevice spiDevice)
+        [Browsable(false)]
+        public PiFaceDevice(ISpiDevice spiDevice)
         {
             this.SpiDevice = spiDevice;
             this.Initialize();

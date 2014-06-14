@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.ComponentModel;
 
 namespace Kingsland.PiFaceSharp.Spi
 {
 
-    internal interface ISpiDevice
+    [Browsable(false)]
+    public interface ISpiDevice
     {
 
         void Open(uint mode);

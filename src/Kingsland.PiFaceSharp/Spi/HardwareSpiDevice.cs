@@ -5,7 +5,7 @@ using Kingsland.PiFaceSharp.Spi.Native;
 namespace Kingsland.PiFaceSharp.Spi
 {
 
-    internal sealed class HardwareSpiDevice : ISpiDevice, IDisposable
+    public sealed class HardwareSpiDevice : ISpiDevice, IDisposable
     {
 
         #region Fields
