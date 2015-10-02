@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Kingsland.PiFaceSharp</id>
+    <version>1.0.0</version>
+    <authors>mikeclayton</authors>
+    <owners>mikeclayton</owners>
+    <licenseUrl>https://github.com/mikeclayton/PiFaceSharp</licenseUrl>
+    <projectUrl>https://github.com/mikeclayton/PiFaceSharp</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>C# library for controlling PiFace Digital inputs and outputs from Mono running on a Raspberry Pi.</description>
+    <tags>c# raspberry pi piface mono</tags>
+  </metadata>
+  <files>
+    <file src="src\Kingsland.PiFaceSharp\bin\Debug\**\*.*" target="\lib\Net40" exclude="**\*.vshost.*" />
+    <file src="src\Kingsland.PiFaceSharp.Emulator\bin\Debug\**\*.*" target="\tools\Net40\Kingsland.PiFace.Emulator" exclude="**\*.vshost.*" />
+    <file src="src\Kingsland.PiFaceSharp.SampleClient\bin\Debug\**\*.*" target="\tools\Net40\Kingsland.PiFaceSharp.SampleClient" exclude="**\*.vshost.*" />
+    <file src="src\Kingsland.PiFaceSharp.SampleConsole\bin\Debug\**\*.*" target="\tools\Net40\Kingsland.PiFaceSharp.SampleConsole" exclude="**\*.vshost.*" />
+    <file src="src\Kingsland.PiFaceSharp.Server\bin\Debug\**\*.*" target="\tools\Net40\Kingsland.PiFaceSharp.Server" exclude="**\*.vshost.*" />
+  </files>
+</package>
