@@ -57,6 +57,11 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PiFaceIoConfigFlags.cs" />
+    <Compile Include="PiFacePullUpMode.cs" />
+    <Compile Include="PiFaceRegisterAddress.cs" />
+    <Compile Include="Remote\MessageReceivedEventArgs.cs" />
+    <Compile Include="Remote\MessageSentEventArgs.cs" />
     <Compile Include="Remote\PiFaceTcpClient.cs" />
     <Compile Include="Emulators\PiFaceEmulator.cs" />
     <Compile Include="Remote\PiFaceTcpHelper.cs" />
@@ -64,6 +69,8 @@
     <Compile Include="Remote\PiFaceTcpServer.cs" />
     <Compile Include="IPiFaceDevice.cs" />
     <Compile Include="PinControllers\BlinkingPinController.cs" />
+    <Compile Include="Remote\PiFaceTcpServerStatus.cs" />
+    <Compile Include="Spi\ISpiDevice.cs" />
     <Compile Include="Spi\Native\FCntl.cs" />
     <Compile Include="Spi\Native\Input.cs" />
     <Compile Include="Spi\Native\IoCtl.cs" />
@@ -74,7 +81,8 @@
     <Compile Include="PinControllers\PinControllerBase.cs" />
     <Compile Include="PinControllers\PwmPinController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Spi\SpiDevice.cs" />
+    <Compile Include="Spi\HardwareSpiDevice.cs" />
+    <Compile Include="Spi\VirtualSpiDevice.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

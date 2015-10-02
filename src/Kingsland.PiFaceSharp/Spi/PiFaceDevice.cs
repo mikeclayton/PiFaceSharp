@@ -1,5 +1,6 @@
-﻿using System;
-using Kingsland.PiFaceSharp.Spi.Native;
+﻿using Kingsland.PiFaceSharp.Spi.Native;
+using System;
+using System.ComponentModel;
 
 namespace Kingsland.PiFaceSharp.Spi
 {
@@ -13,75 +14,14 @@ namespace Kingsland.PiFaceSharp.Spi
 
         #region Constants
 
-        /// <summary>
-        /// The default name of the PiFace device.
-        /// </summary>
-        public const string DefaultDeviceName = "/dev/spidev0.0";
-
         private const byte CMD_WRITE = 0x40;
         private const byte CMD_READ = 0x41;
-
-        // register addresses
-        // see https://github.com/piface/pifacecommon/blob/master/pifacecommon/mcp23s17.py
-        private enum RegisterAddress : byte
-        {
-            IODIRA = 0x00,    // I/O direction A
-            IODIRB = 0x01,    // I/O direction B
-            IPOLA = 0x02,     // I/O polarity A
-            IPOLB = 0x03,     // I/O polarity B
-            GPINTENA = 0x04,  // interupt enable A
-            GPINTENB = 0x05,  // interupt enable B
-            DEFVALA = 0x06,   // register default value A (interupts)
-            DEFVALB = 0x07,   // register default value B (interupts)
-            INTCONA = 0x08,   // interupt control A
-            INTCONB = 0x09,   // interupt control B
-            IOCON = 0x0A,     // I/O config (also 0xB)
-            GPPUA = 0x0C,     // port A pullups
-            GPPUB = 0x0D,     // port B pullups
-            INTFA = 0x0E,     // interupt flag A (where the interupt came from)
-            INTFB = 0x0F,     // interupt flag B
-            INTCAPA = 0x10,   // interupt capture A (value at interupt is saved here)
-            INTCAPB = 0x11,   // interupt capture B
-            GPIOA = 0x12,     // port A
-            GPIOB = 0x13,     // port B
-            OLATA = 0x14,     // output latch A
-            OLATB = 0x15      // output latch B
-        }
-
-        // i/o config
-        // from https://github.com/piface/pifacecommon/blob/master/pifacecommon/mcp23s17.py
-        [Flags]
-        private enum IoConfig : byte
-        {
-            BANK_OFF = 0x00,        // addressing mode
-            BANK_ON = 0x80,
-            INT_MIRROR_ON = 0x40,   // interupt mirror (INTa|INTb)
-            INT_MIRROR_OFF = 0x00,
-            SEQOP_OFF = 0x20,       // incrementing address pointer
-            SEQOP_ON = 0x00,
-            DISSLW_ON = 0x10,       // slew rate
-            DISSLW_OFF = 0x00,
-            HAEN_ON = 0x08,         // hardware addressing
-            HAEN_OFF = 0x00,
-            ODR_ON = 0x04,          // open drain for interupts
-            ODR_OFF = 0x00,
-            INTPOL_HIGH = 0x02,     // interupt polarity
-            INTPOL_LOW = 0x00
-        }
-
-
-        private enum PullUpMode
-        {
-            Off = 0,
-            PullDown = 1,
-            PullUp = 2
-        }
 
         #endregion
 
         #region Fields
 
-        private PullUpMode _mPortBPullUpMode;
+        private PiFacePullUpMode _portBPullUpMode;
 
         #endregion
 
@@ -91,7 +31,7 @@ namespace Kingsland.PiFaceSharp.Spi
         /// Creates a new PiFace object using the default device name.
         /// </summary>
         public PiFaceDevice()
-            : this(PiFaceDevice.DefaultDeviceName)
+            : this("/dev/spidev0.0")
         {
         }
 
@@ -103,7 +43,20 @@ namespace Kingsland.PiFaceSharp.Spi
         /// </param>
         public PiFaceDevice(string deviceName)
         {
-            this.DeviceName = deviceName;
+            this.SpiDevice = new HardwareSpiDevice(0, 0, deviceName);
+            this.Initialize();
+        }
+
+        /// <summary>
+        /// Creates a new PiFace object using the specified spi device.
+        /// </summary>
+        /// <param name="spiDevice">
+        /// The spi device to connect to.
+        /// </param>
+        [Browsable(false)]
+        public PiFaceDevice(ISpiDevice spiDevice)
+        {
+            this.SpiDevice = spiDevice;
             this.Initialize();
         }
 
@@ -112,18 +65,9 @@ namespace Kingsland.PiFaceSharp.Spi
         #region Properties
 
         /// <summary>
-        /// Gets the name of the device this object is connected to.
+        /// Gets or sets an SpiDevice that represents the SPI interface for this device.
         /// </summary>
-        public string DeviceName
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets or sets an SpiDevice that represents the SPI interface.
-        /// </summary>
-        private SpiDevice SpiDevice
+        private ISpiDevice SpiDevice
         {
             get;
             set;
@@ -131,37 +75,39 @@ namespace Kingsland.PiFaceSharp.Spi
 
         /// <summary>
         /// Gets or sets the last-written state of the output pins.
+        /// </summary>
+        /// <remarks>
         /// We can't write bit states for individual pins on the MCP23S17, so
         /// this property caches the last known value that we wrote. Otherwise
         /// we'd have to read the states back from it every time we want to
         /// change a single pin's state.
-        /// </summary>
+        /// </remarks>
         private byte OutputPinBuffer
         {
             get;
             set;
         }
 
-        private PullUpMode PortBPullUpMode
+        private PiFacePullUpMode PortBPullUpMode
         {
             get
             {
-                return _mPortBPullUpMode;
+                return _portBPullUpMode;
             }
             set
             {
                 switch(value)
                 {
-                    case PullUpMode.PullUp:
-                        this.SpiDevice.WriteByte((byte)RegisterAddress.GPPUB, 0xFF);
+                    case PiFacePullUpMode.PullUp:
+                        this.SpiDevice.WriteByte((byte)PiFaceRegisterAddress.GPPUB, 0xFF);
                         break;
-                    case PullUpMode.PullDown:
-                        this.SpiDevice.WriteByte((byte)RegisterAddress.GPPUB, 0x00);
+                    case PiFacePullUpMode.PullDown:
+                        this.SpiDevice.WriteByte((byte)PiFaceRegisterAddress.GPPUB, 0x00);
                         break;
                     default:
-                        throw new System.ArgumentOutOfRangeException("value");
+                        throw new ArgumentOutOfRangeException("value");
                 }
-                _mPortBPullUpMode = value;
+                _portBPullUpMode = value;
             }
         }
 
@@ -178,10 +124,10 @@ namespace Kingsland.PiFaceSharp.Spi
         {
             if(pin > 7)
             {
-                throw new System.ArgumentOutOfRangeException("pin", "pin must be in the range 0-7");
+                throw new ArgumentOutOfRangeException("pin", "pin must be in the range 0-7");
             }
             var mask = (byte)(1 << pin);
-            var state = this.SpiDevice.ReadByte((byte)RegisterAddress.GPIOA);
+            var state = this.SpiDevice.ReadByte((byte)PiFaceRegisterAddress.GPIOA);
             this.OutputPinBuffer = state;
             return (state & mask) == mask;
         }
@@ -194,7 +140,7 @@ namespace Kingsland.PiFaceSharp.Spi
         /// </returns>
         public byte GetOutputPinStates()
         {
-            var state = this.SpiDevice.ReadByte((byte)RegisterAddress.GPIOA);
+            var state = this.SpiDevice.ReadByte((byte)PiFaceRegisterAddress.GPIOA);
             this.OutputPinBuffer = state;
             return state;
         }
@@ -208,7 +154,7 @@ namespace Kingsland.PiFaceSharp.Spi
         {
             if (pin > 7)
             {
-                throw new System.ArgumentOutOfRangeException("pin", "pin must be in the range 0-7");
+                throw new ArgumentOutOfRangeException("pin", "pin must be in the range 0-7");
             }
             var mask = (byte)(1 << pin);
             if (enabled)
@@ -219,7 +165,7 @@ namespace Kingsland.PiFaceSharp.Spi
             {
                 this.OutputPinBuffer &= (byte)~mask;
             }
-            this.SpiDevice.WriteByte((byte)RegisterAddress.GPIOA, this.OutputPinBuffer);
+            this.SpiDevice.WriteByte((byte)PiFaceRegisterAddress.GPIOA, this.OutputPinBuffer);
         }
 
         /// <summary>
@@ -229,7 +175,7 @@ namespace Kingsland.PiFaceSharp.Spi
         /// <param name="bitMask"></param>
         public void SetOutputPinStates(byte bitMask)
         {
-            this.SpiDevice.WriteByte((byte)RegisterAddress.GPIOA, bitMask);
+            this.SpiDevice.WriteByte((byte)PiFaceRegisterAddress.GPIOA, bitMask);
         }
 
         /// <summary>
@@ -243,15 +189,15 @@ namespace Kingsland.PiFaceSharp.Spi
         {
             if (pin > 7)
             {
-                throw new System.ArgumentOutOfRangeException("pin", "pin must be in the range 0-7");
+                throw new ArgumentOutOfRangeException("pin", "pin must be in the range 0-7");
             }
             var mask = (byte)(1 << pin);
-            var state = this.SpiDevice.ReadByte((byte)RegisterAddress.GPIOB);
+            var state = this.SpiDevice.ReadByte((byte)PiFaceRegisterAddress.GPIOB);
             switch (this.PortBPullUpMode)
             {
-                case PullUpMode.PullUp:
+                case PiFacePullUpMode.PullUp:
                     return ((state & mask) == 0);
-                case PullUpMode.PullDown:
+                case PiFacePullUpMode.PullDown:
                 default:
                     throw new System.InvalidOperationException();
             }
@@ -265,7 +211,7 @@ namespace Kingsland.PiFaceSharp.Spi
         /// </returns>
         public byte GetInputPinStates()
         {
-            var state = this.SpiDevice.ReadByte((byte)RegisterAddress.GPIOB);
+            var state = this.SpiDevice.ReadByte((byte)PiFaceRegisterAddress.GPIOB);
             return state;
         }
 
@@ -280,7 +226,7 @@ namespace Kingsland.PiFaceSharp.Spi
         /// </remarks>
         public void SetInputPinState(byte pin, bool enabled)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -294,7 +240,7 @@ namespace Kingsland.PiFaceSharp.Spi
         /// </remarks>
         public void SetInputPinStates(byte bitMask)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         #endregion
@@ -307,7 +253,6 @@ namespace Kingsland.PiFaceSharp.Spi
         /// <returns></returns>
         private int Initialize()
         {
-            this.SpiDevice = new SpiDevice(0, 0, this.DeviceName);
             this.SpiDevice.Open(FCntl.O_RDWR);
             //// set the SPI parameters
             this.SpiDevice.SetMode(SpiDev.SPI_MODE_0);
@@ -321,12 +266,12 @@ namespace Kingsland.PiFaceSharp.Spi
             //     cmd: WRITE, port: IODIRB, data: 0xff
             //     cmd: WRITE, port: GPPUB,  data: 0xff
             //     cmd: WRITE, port: GPIOA,  data: 0x0
-            const IoConfig flags = IoConfig.HAEN_ON;
-            this.SpiDevice.WriteByte((byte)RegisterAddress.IOCON, (byte)flags);
+            const PiFaceIoConfigFlags flags = PiFaceIoConfigFlags.HAEN_ON;
+            this.SpiDevice.WriteByte((byte)PiFaceRegisterAddress.IOCON, (byte)flags);
             this.SetOutputPinStates(0);
-            this.SpiDevice.WriteByte((byte)RegisterAddress.IODIRA, 0x00); // initialise Port A pins for output
-            this.SpiDevice.WriteByte((byte)RegisterAddress.IODIRB, 0xFF); // initialise Port B pins for input
-            this.PortBPullUpMode = PullUpMode.PullUp; // set pull up mode on input pins
+            this.SpiDevice.WriteByte((byte)PiFaceRegisterAddress.IODIRA, 0x00); // initialise Port A pins for output
+            this.SpiDevice.WriteByte((byte)PiFaceRegisterAddress.IODIRB, 0xFF); // initialise Port B pins for input
+            this.PortBPullUpMode = PiFacePullUpMode.PullUp; // set pull up mode on input pins
             this.SetOutputPinStates(0);
             return 0;
         }

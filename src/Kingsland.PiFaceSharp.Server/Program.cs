@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using Kingsland.PiFaceSharp.Emulators;
 using Kingsland.PiFaceSharp.Remote;
 using Kingsland.PiFaceSharp.Spi;
@@ -15,7 +16,7 @@ namespace Kingsland.PiFaceSharp.Server
             var settings = Properties.Settings.Default;
 
             // initialise the PiFace device to bind the server to
-            var device = (IPiFaceDevice)null;
+            var device = default(IPiFaceDevice);
             switch(settings.DeviceType)
             {
                 case "Physical":
@@ -29,7 +30,7 @@ namespace Kingsland.PiFaceSharp.Server
             }
             
             // get the address to run the server on
-            var address = (IPAddress)null;
+            var address = default(IPAddress);
             if (string.IsNullOrEmpty(settings.ServerAddress))
             {
                 address = PiFaceTcpHelper.GetLocalIPAddress();
@@ -49,6 +50,8 @@ namespace Kingsland.PiFaceSharp.Server
             // start the server
             var endpoint = new IPEndPoint(address, (int)port);
             var server = new PiFaceTcpServer(device, endpoint);
+            server.MessageReceived += Program.PiFaceTcpServer_MessageReceived;
+            server.ResponseSent += Program.PiFaceTcpServer_ResponseSent;
             server.Start();
 
             // wait around while the server runs
@@ -57,6 +60,25 @@ namespace Kingsland.PiFaceSharp.Server
                 System.Threading.Thread.Sleep(1000);
             }
 
+        }
+
+        #region Server Event handlers
+
+        private static void PiFaceTcpServer_MessageReceived(object sender, MessageReceivedEventArgs e)
+        {
+            Program.LogEvent(string.Format("message received - {0}", e.PacketType));
+        }
+
+        private static void PiFaceTcpServer_ResponseSent(object sender, ResponseSentEventArgs e)
+        {
+            Program.LogEvent("response sent");
+        }
+
+        #endregion
+
+        private static void LogEvent(string message)
+        {
+            Console.WriteLine("{0} {1}", DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"), message);
         }
 
     }

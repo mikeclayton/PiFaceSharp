@@ -22,7 +22,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
 
         #region Fields
 
-        private readonly object _mLockObject = new object();
+        private readonly object _lockObject = new object();
 
         #endregion
 
@@ -75,19 +75,22 @@ namespace Kingsland.PiFaceSharp.PinControllers
         /// </summary>
         public void Start()
         {
-            lock (_mLockObject)
+            lock (_lockObject)
             {
                 switch (this.Status)
                 {
                     case BackgroundPinControllerStatus.Stopped:
                         Console.WriteLine("starting pin controller thread");
                         this.Status = BackgroundPinControllerStatus.Running;
-                        this.WorkerThread = new Thread(this.Execute);
-                        this.WorkerThread.IsBackground = true;
+                        this.WorkerThread = new Thread(this.Execute)
+                        {
+                            IsBackground = true
+                        };
                         this.WorkerThread.Start();
                         break;
                     default:
-                        throw new System.InvalidOperationException("Cannot start a controller with the status '" + this.Status.ToString() + "'");
+                        throw new InvalidOperationException(
+                            string.Format("Cannot start a controller with the status '{0}'", this.Status));
                 }
             }
         }
@@ -97,7 +100,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
         /// </summary>
         public void Stop()
         {
-            lock (_mLockObject)
+            lock (_lockObject)
             {
                 switch (this.Status)
                 {
@@ -112,7 +115,8 @@ namespace Kingsland.PiFaceSharp.PinControllers
                         this.Status = BackgroundPinControllerStatus.Stopped;
                         break;
                     default:
-                        throw new System.InvalidOperationException("Cannot stop a controller with the status '" + this.Status.ToString() + "'");
+                        throw new InvalidOperationException(
+                            string.Format("Cannot stop a controller with the status '{0}'", this.Status));
                 }
             }
         }

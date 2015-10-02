@@ -104,13 +104,13 @@ namespace Kingsland.PiFaceSharp.Remote
             }
             stream.WriteByte((byte)type);
             stream.WriteByte(length);
-            if (length > 0)
+            if (data != null)
             {
                 stream.Write(data, 0, data.Length);
             }
             stream.Flush();
             // read the response
-            var result = (byte[])null;
+            var result = default(byte[]);
             length = (byte)stream.ReadByte();
             if (length > 0)
             {
@@ -180,7 +180,7 @@ namespace Kingsland.PiFaceSharp.Remote
         {
             var data = new[] { pin };
             var result = this.SendMessage(PacketType.GetInputPinState, data);
-            throw new System.InvalidOperationException();
+            return (result[0] != 0);
         }
 
         /// <summary>

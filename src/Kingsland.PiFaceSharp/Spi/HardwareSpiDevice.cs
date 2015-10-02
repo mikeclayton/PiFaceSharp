@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Kingsland.PiFaceSharp.Spi.Native;
+using System.IO;
 
 namespace Kingsland.PiFaceSharp.Spi
 {
 
-    internal class SpiDevice : IDisposable
+    public sealed class HardwareSpiDevice : ISpiDevice, IDisposable
     {
 
         #region Fields
@@ -18,15 +19,15 @@ namespace Kingsland.PiFaceSharp.Spi
 
         #region Constructors
 
-        public SpiDevice(uint bus, uint chipSelect, string deviceName)
+        public HardwareSpiDevice(uint bus, uint chipSelect, string deviceName)
         {
             this.Bus = bus;
             this.ChipSelect = chipSelect;
-            this.DeviceName = deviceName;
             this.SpiDelay = 0;
+            this.DeviceName = deviceName;
         }
 
-        ~SpiDevice()
+        ~HardwareSpiDevice()
         {
             this.Dispose(false);
         }
@@ -84,40 +85,7 @@ namespace Kingsland.PiFaceSharp.Spi
 
         #endregion
 
-        #region IO Methods
-
-        private const byte CMD_WRITE = 0x40;
-        private const byte CMD_READ = 0x41;
-
-        public void Open(uint mode)
-        {
-            if (this.DeviceHandle != 0)
-            {
-                throw new System.IO.IOException("Device is already open.");
-            }
-            var result = FCntl.open(this.DeviceName, FCntl.O_RDWR);
-            if (result < 0)
-            {
-                throw new System.IO.IOException("Failed to open device.");
-            }
-            this.DeviceHandle = result;
-            this.InitTxRxBuffers();
-        }
-
-        public void Close()
-        {
-            if (this.DeviceHandle == 0)
-            {
-                throw new System.IO.IOException("Device is already closed.");
-            }
-            var result = FCntl.close(this.DeviceHandle);
-            if (result < 0)
-            {
-                throw new System.IO.IOException("Failed to close device.");
-            }
-            this.DeviceHandle = 0;
-            this.FreeTxRxBuffers();
-        }
+        #region Methods
 
         private void InitTxRxBuffers()
         {
@@ -139,6 +107,43 @@ namespace Kingsland.PiFaceSharp.Spi
             }
         }
 
+        #endregion
+
+        #region ISpiDevice Interface
+
+        private const byte CMD_WRITE = 0x40;
+        private const byte CMD_READ = 0x41;
+
+        public void Open(int flags)
+        {
+            if (this.DeviceHandle != 0)
+            {
+                throw new IOException("Device is already open.");
+            }
+            var result = FCntl.open(this.DeviceName, flags);
+            if (result < 0)
+            {
+                throw new IOException(string.Format("Failed to open device - error {0}.", result));
+            }
+            this.DeviceHandle = result;
+            this.InitTxRxBuffers();
+        }
+
+        public void Close()
+        {
+            if (this.DeviceHandle == 0)
+            {
+                throw new IOException("Device is already closed.");
+            }
+            var result = FCntl.close(this.DeviceHandle);
+            if (result < 0)
+            {
+                throw new IOException(string.Format("Failed to close device - error {0}.", result));
+            }
+            this.DeviceHandle = 0;
+            this.FreeTxRxBuffers();
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -147,8 +152,8 @@ namespace Kingsland.PiFaceSharp.Spi
         public byte ReadByte(byte address)
         {
             //Console.WriteLine("    spiBufTx = {0} {1} {2}", CMD_READ, address, 0);
-            Marshal.Copy(new byte[] { CMD_READ, address, 0 }, 0, this._txBufferPtr, SpiDevice.TxRxBufferLength);
-            Marshal.Copy(new byte[] { 0, 0, 0 }, 0, this._rxBufferPtr, SpiDevice.TxRxBufferLength);
+            Marshal.Copy(new byte[] { CMD_READ, address, 0 }, 0, this._txBufferPtr, HardwareSpiDevice.TxRxBufferLength);
+            Marshal.Copy(new byte[] { 0, 0, 0 }, 0, this._rxBufferPtr, HardwareSpiDevice.TxRxBufferLength);
             // build the command
             var cmd = SpiDev.SPI_IOC_MESSAGE(1);
             // build the spi transfer structure
@@ -156,7 +161,7 @@ namespace Kingsland.PiFaceSharp.Spi
             {
                 tx_buf = (UInt64)this._txBufferPtr.ToInt64(),
                 rx_buf = (UInt64)this._rxBufferPtr.ToInt64(),
-                len = SpiDevice.TxRxBufferLength,
+                len = HardwareSpiDevice.TxRxBufferLength,
                 delay_usecs = this.SpiDelay,
                 speed_hz = this.MaxSpeedHz,
                 bits_per_word = (byte)this.BitsPerWord
@@ -170,7 +175,7 @@ namespace Kingsland.PiFaceSharp.Spi
             // return the result. every byte transmitted results in a
             // data or dummy byte received, so we have to skip the
             // leading dummy bytes to read out actual data bytes.
-            var bufOut = new byte[SpiDevice.TxRxBufferLength];
+            var bufOut = new byte[HardwareSpiDevice.TxRxBufferLength];
             Marshal.Copy(this._txBufferPtr, bufOut, 0, bufOut.Length);
             Marshal.Copy(this._rxBufferPtr, bufOut, 0, bufOut.Length);
             return bufOut[2];
@@ -183,8 +188,8 @@ namespace Kingsland.PiFaceSharp.Spi
         /// <param name="value"></param>
         public void WriteByte(byte address, byte value)
         {
-            Marshal.Copy(new byte[] { CMD_WRITE, address, value }, 0, this._txBufferPtr, SpiDevice.TxRxBufferLength);
-            Marshal.Copy(new byte[] { 0, 0, 0 }, 0, this._rxBufferPtr, SpiDevice.TxRxBufferLength);
+            Marshal.Copy(new byte[] { CMD_WRITE, address, value }, 0, this._txBufferPtr, HardwareSpiDevice.TxRxBufferLength);
+            Marshal.Copy(new byte[] { 0, 0, 0 }, 0, this._rxBufferPtr, HardwareSpiDevice.TxRxBufferLength);
             // build the command
             var cmd = SpiDev.SPI_IOC_MESSAGE(1);
             // build the spi transfer structure
@@ -192,7 +197,7 @@ namespace Kingsland.PiFaceSharp.Spi
             {
                 tx_buf = (UInt64)this._txBufferPtr.ToInt64(),
                 rx_buf = (UInt64)this._rxBufferPtr.ToInt64(),
-                len = SpiDevice.TxRxBufferLength,
+                len = HardwareSpiDevice.TxRxBufferLength,
                 delay_usecs = this.SpiDelay,
                 speed_hz = this.MaxSpeedHz,
                 bits_per_word = (byte)this.BitsPerWord
@@ -207,18 +212,18 @@ namespace Kingsland.PiFaceSharp.Spi
 
         public void SetMode(uint mode)
         {
-            var value = (uint)mode;
+            var value = mode;
             var result = 0;
             result = IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_WR_MODE, ref value);
             if (result < 0)
             {
-                throw new System.InvalidOperationException(string.Format("Failed to set mode - error {0}", result));
+                throw new InvalidOperationException(string.Format("Failed to set mode - error {0}", result));
             }
             // every tx results in an rx, so we have to read after every write)
             result = IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_WR_MODE, ref value);
             if (result < 0)
             {
-                throw new System.InvalidOperationException(string.Format("Failed to get mode - error {0}", result));
+                throw new InvalidOperationException(string.Format("Failed to get mode - error {0}", result));
             }
             this.Mode = mode;
         }
@@ -230,25 +235,25 @@ namespace Kingsland.PiFaceSharp.Spi
             result = IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_WR_BITS_PER_WORD, ref value);
             if (result < 0)
             {
-                throw new System.InvalidOperationException(string.Format("Failed to set bits per word - error {0}", result));
+                throw new InvalidOperationException(string.Format("Failed to set bits per word - error {0}", result));
             }
             // every tx results in an rx, so we have to read after every write
             result = IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_RD_BITS_PER_WORD, ref value);
             if (result < 0)
             {
-                throw new System.InvalidOperationException(string.Format("Failed to get bits per word - error {0}", result));
+                throw new InvalidOperationException(string.Format("Failed to get bits per word - error {0}", result));
             }
             this.BitsPerWord = bitsPerWord;
         }
 
         public void SetMaxSpeedHz(uint maxSpeedHz)
         {
-            var value = (uint)maxSpeedHz;
+            var value = maxSpeedHz;
             var result = 0;
             result = IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_WR_MAX_SPEED_HZ, ref value);
             if (result < 0)
             {
-                throw new System.InvalidOperationException(string.Format("Failed to set max speed hz - error {0}", result));
+                throw new InvalidOperationException(string.Format("Failed to set max speed hz - error {0}", result));
             }
             // every tx results in an rx, so we have to read after every write
             result = IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_RD_MAX_SPEED_HZ, ref value);
@@ -269,7 +274,7 @@ namespace Kingsland.PiFaceSharp.Spi
             GC.SuppressFinalize(this);
         }
 
-        protected void Dispose(Boolean disposing)
+        private void Dispose(Boolean disposing)
         {
             if (this.DeviceHandle != 0)
             {

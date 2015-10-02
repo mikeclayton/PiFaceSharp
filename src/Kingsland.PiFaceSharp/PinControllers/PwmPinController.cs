@@ -19,12 +19,12 @@ namespace Kingsland.PiFaceSharp.PinControllers
 
         #region Fields
 
-        private byte _mOutputPin;
+        private byte _outputPin;
 
-        private int _mPeriod;
-        private float _mDuty;
-        private int _mDutyHighMs;
-        private int _mDutyLowMs;
+        private int _period;
+        private float _duty;
+        private int _dutyHighMs;
+        private int _dutyLowMs;
 
         #endregion
 
@@ -72,15 +72,15 @@ namespace Kingsland.PiFaceSharp.PinControllers
         {
             get
             {
-                return _mOutputPin;
+                return _outputPin;
             }
             private set
             {
-                if (_mOutputPin > 7)
+                if (_outputPin > 7)
                 {
-                    throw new System.ArgumentOutOfRangeException("value", "Value must be 7 or less.");
+                    throw new ArgumentOutOfRangeException("value", "Value must be 7 or less.");
                 }
-                _mOutputPin = value;
+                _outputPin = value;
             }
         }
 
@@ -92,7 +92,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
         {
             get
             {
-                return _mPeriod;
+                return _period;
             }
             private set
             {
@@ -108,7 +108,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
         {
             get
             {
-                return _mDuty;
+                return _duty;
             }
             set
             {
@@ -126,19 +126,19 @@ namespace Kingsland.PiFaceSharp.PinControllers
             if (period < 10)
             {
                 // there's a practical limit to how fast the output pins can be updated
-                throw new System.ArgumentOutOfRangeException("period", "Value must be 10 or less.");
+                throw new ArgumentOutOfRangeException("period", "Value must be 10 or less.");
             }
             if (duty < 0 || duty > 1)
             {
                 // can't be on a negative amount, or more than 100%
-                throw new System.ArgumentOutOfRangeException("duty", "Value must be between 0 and 1.");
+                throw new ArgumentOutOfRangeException("duty", "Value must be between 0 and 1.");
             }
             // copy the parameters locally
-            _mPeriod = period;
-            _mDuty = duty;
+            _period = period;
+            _duty = duty;
             // calculate the on and off intervals so we don't have to keep doing it in the Execute method
-            _mDutyHighMs = (int)(_mDuty * _mPeriod);
-            _mDutyLowMs = period - _mDutyHighMs;
+            _dutyHighMs = (int)(_duty * _period);
+            _dutyLowMs = period - _dutyHighMs;
         }
                
         /// <summary>
@@ -149,15 +149,15 @@ namespace Kingsland.PiFaceSharp.PinControllers
             // run the main loop
             while (this.Status == BackgroundPinControllerStatus.Running)
             {
-                if (_mDutyLowMs > 0)
+                if (_dutyLowMs > 0)
                 {
                     this.PiFace.SetOutputPinState(this.OutputPin, false);
-                    Thread.Sleep(_mDutyLowMs);
+                    Thread.Sleep(_dutyLowMs);
                 }
-                if (_mDutyHighMs > 0)
+                if (_dutyHighMs > 0)
                 {
                     this.PiFace.SetOutputPinState(this.OutputPin, true);
-                    Thread.Sleep(_mDutyHighMs);
+                    Thread.Sleep(_dutyHighMs);
                 }
             }
         }
