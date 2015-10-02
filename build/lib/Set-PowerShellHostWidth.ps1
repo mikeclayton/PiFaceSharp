@@ -9,7 +9,7 @@ function Set-PowerShellHostWidth
 
     )
 
-    # set powershell's internal output buffer width to prevent clipping in TeamCity output log
+    # set powershell's internal output buffer width to prevent excessive word wrapping in TeamCity output log
     # see http://stackoverflow.com/questions/978777/powershell-output-column-width
     if( ($host -ne $null) -and ($host.UI -ne $null) -and ($host.UI.RawUI -ne $null) )
     {
