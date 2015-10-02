@@ -16,7 +16,7 @@ namespace Kingsland.PiFaceSharp.Server
             var settings = Properties.Settings.Default;
 
             // initialise the PiFace device to bind the server to
-            var device = (IPiFaceDevice)null;
+            var device = default(IPiFaceDevice);
             switch(settings.DeviceType)
             {
                 case "Physical":
@@ -30,7 +30,7 @@ namespace Kingsland.PiFaceSharp.Server
             }
             
             // get the address to run the server on
-            var address = (IPAddress)null;
+            var address = default(IPAddress);
             if (string.IsNullOrEmpty(settings.ServerAddress))
             {
                 address = PiFaceTcpHelper.GetLocalIPAddress();

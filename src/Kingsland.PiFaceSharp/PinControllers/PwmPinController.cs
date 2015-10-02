@@ -78,7 +78,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
             {
                 if (_outputPin > 7)
                 {
-                    throw new System.ArgumentOutOfRangeException("value", "Value must be 7 or less.");
+                    throw new ArgumentOutOfRangeException("value", "Value must be 7 or less.");
                 }
                 _outputPin = value;
             }
@@ -126,12 +126,12 @@ namespace Kingsland.PiFaceSharp.PinControllers
             if (period < 10)
             {
                 // there's a practical limit to how fast the output pins can be updated
-                throw new System.ArgumentOutOfRangeException("period", "Value must be 10 or less.");
+                throw new ArgumentOutOfRangeException("period", "Value must be 10 or less.");
             }
             if (duty < 0 || duty > 1)
             {
                 // can't be on a negative amount, or more than 100%
-                throw new System.ArgumentOutOfRangeException("duty", "Value must be between 0 and 1.");
+                throw new ArgumentOutOfRangeException("duty", "Value must be between 0 and 1.");
             }
             // copy the parameters locally
             _period = period;

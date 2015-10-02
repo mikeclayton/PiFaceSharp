@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 
 namespace Kingsland.PiFaceSharp.PinControllers
 {
@@ -53,7 +54,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
             {
                 if (_outputPin > 7)
                 {
-                    throw new System.ArgumentOutOfRangeException("value", "Value must be 7 or less.");
+                    throw new ArgumentOutOfRangeException("value", "Value must be 7 or less.");
                 }
                 _outputPin = value;
             }
@@ -73,7 +74,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
                 if (value < 10)
                 {
                     // there's a practical limit to how fast the output pins can be updated
-                    throw new System.ArgumentOutOfRangeException("value", "Value must be 10 or less.");
+                    throw new ArgumentOutOfRangeException("value", "Value must be 10 or less.");
                 }
                 _interval = value;
             }

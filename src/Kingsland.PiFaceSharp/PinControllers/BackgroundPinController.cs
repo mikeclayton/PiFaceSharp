@@ -89,7 +89,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
                         this.WorkerThread.Start();
                         break;
                     default:
-                        throw new System.InvalidOperationException(
+                        throw new InvalidOperationException(
                             string.Format("Cannot start a controller with the status '{0}'", this.Status));
                 }
             }
@@ -115,7 +115,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
                         this.Status = BackgroundPinControllerStatus.Stopped;
                         break;
                     default:
-                        throw new System.InvalidOperationException(
+                        throw new InvalidOperationException(
                             string.Format("Cannot stop a controller with the status '{0}'", this.Status));
                 }
             }

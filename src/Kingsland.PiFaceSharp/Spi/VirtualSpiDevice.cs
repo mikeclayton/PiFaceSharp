@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace Kingsland.PiFaceSharp.Spi
 {
@@ -40,7 +41,7 @@ namespace Kingsland.PiFaceSharp.Spi
         {
             if (this.IsOpen)
             {
-                throw new System.IO.IOException("Device is already open.");
+                throw new IOException("Device is already open.");
             }
             this.IsOpen = true;
         }
@@ -49,7 +50,7 @@ namespace Kingsland.PiFaceSharp.Spi
         {
             if (this.IsOpen)
             {
-                throw new System.IO.IOException("Device is already closed.");
+                throw new IOException("Device is already closed.");
             }
             this.IsOpen = false;
         }

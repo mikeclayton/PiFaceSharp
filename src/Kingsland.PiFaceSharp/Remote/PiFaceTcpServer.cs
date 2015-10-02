@@ -78,11 +78,11 @@ namespace Kingsland.PiFaceSharp.Remote
             // validate the parameters
             if (device == null)
             {
-                throw new System.ArgumentNullException("device");
+                throw new ArgumentNullException("device");
             }
             if (localEndPoint == null)
             {
-                throw new System.ArgumentNullException("localEndPoint");
+                throw new ArgumentNullException("localEndPoint");
             }
             // copy the parameters locally
             this.PiFaceDevice = device;
@@ -168,7 +168,7 @@ namespace Kingsland.PiFaceSharp.Remote
                         this.Status = PiFaceTcpServerStatus.Stopped;
                         break;
                     default:
-                        throw new System.InvalidOperationException("Cannot stop a server with the status '" + this.Status.ToString() + "'");
+                        throw new InvalidOperationException("Cannot stop a server with the status '" + this.Status.ToString() + "'");
                 }
             }
         }
@@ -279,7 +279,7 @@ namespace Kingsland.PiFaceSharp.Remote
                     this.PiFaceDevice.SetInputPinStates(data[0]);
                     break;
                 default:
-                    throw new System.InvalidOperationException();
+                    throw new InvalidOperationException();
             }
             // write the result
             data = result.ToArray();

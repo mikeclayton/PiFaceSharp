@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Kingsland.PiFaceSharp.Spi.Native;
+using System.IO;
 
 namespace Kingsland.PiFaceSharp.Spi
 {
@@ -117,12 +118,12 @@ namespace Kingsland.PiFaceSharp.Spi
         {
             if (this.DeviceHandle != 0)
             {
-                throw new System.IO.IOException("Device is already open.");
+                throw new IOException("Device is already open.");
             }
             var result = FCntl.open(this.DeviceName, flags);
             if (result < 0)
             {
-                throw new System.IO.IOException(string.Format("Failed to open device - error {0}.", result));
+                throw new IOException(string.Format("Failed to open device - error {0}.", result));
             }
             this.DeviceHandle = result;
             this.InitTxRxBuffers();
@@ -132,12 +133,12 @@ namespace Kingsland.PiFaceSharp.Spi
         {
             if (this.DeviceHandle == 0)
             {
-                throw new System.IO.IOException("Device is already closed.");
+                throw new IOException("Device is already closed.");
             }
             var result = FCntl.close(this.DeviceHandle);
             if (result < 0)
             {
-                throw new System.IO.IOException(string.Format("Failed to close device - error {0}.", result));
+                throw new IOException(string.Format("Failed to close device - error {0}.", result));
             }
             this.DeviceHandle = 0;
             this.FreeTxRxBuffers();
@@ -211,18 +212,18 @@ namespace Kingsland.PiFaceSharp.Spi
 
         public void SetMode(uint mode)
         {
-            var value = (uint)mode;
+            var value = mode;
             var result = 0;
             result = IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_WR_MODE, ref value);
             if (result < 0)
             {
-                throw new System.InvalidOperationException(string.Format("Failed to set mode - error {0}", result));
+                throw new InvalidOperationException(string.Format("Failed to set mode - error {0}", result));
             }
             // every tx results in an rx, so we have to read after every write)
             result = IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_WR_MODE, ref value);
             if (result < 0)
             {
-                throw new System.InvalidOperationException(string.Format("Failed to get mode - error {0}", result));
+                throw new InvalidOperationException(string.Format("Failed to get mode - error {0}", result));
             }
             this.Mode = mode;
         }
@@ -234,25 +235,25 @@ namespace Kingsland.PiFaceSharp.Spi
             result = IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_WR_BITS_PER_WORD, ref value);
             if (result < 0)
             {
-                throw new System.InvalidOperationException(string.Format("Failed to set bits per word - error {0}", result));
+                throw new InvalidOperationException(string.Format("Failed to set bits per word - error {0}", result));
             }
             // every tx results in an rx, so we have to read after every write
             result = IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_RD_BITS_PER_WORD, ref value);
             if (result < 0)
             {
-                throw new System.InvalidOperationException(string.Format("Failed to get bits per word - error {0}", result));
+                throw new InvalidOperationException(string.Format("Failed to get bits per word - error {0}", result));
             }
             this.BitsPerWord = bitsPerWord;
         }
 
         public void SetMaxSpeedHz(uint maxSpeedHz)
         {
-            var value = (uint)maxSpeedHz;
+            var value = maxSpeedHz;
             var result = 0;
             result = IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_WR_MAX_SPEED_HZ, ref value);
             if (result < 0)
             {
-                throw new System.InvalidOperationException(string.Format("Failed to set max speed hz - error {0}", result));
+                throw new InvalidOperationException(string.Format("Failed to set max speed hz - error {0}", result));
             }
             // every tx results in an rx, so we have to read after every write
             result = IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_RD_MAX_SPEED_HZ, ref value);

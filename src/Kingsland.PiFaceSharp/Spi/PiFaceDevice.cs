@@ -1,4 +1,5 @@
 ﻿using Kingsland.PiFaceSharp.Spi.Native;
+using System;
 using System.ComponentModel;
 
 namespace Kingsland.PiFaceSharp.Spi
@@ -104,7 +105,7 @@ namespace Kingsland.PiFaceSharp.Spi
                         this.SpiDevice.WriteByte((byte)PiFaceRegisterAddress.GPPUB, 0x00);
                         break;
                     default:
-                        throw new System.ArgumentOutOfRangeException("value");
+                        throw new ArgumentOutOfRangeException("value");
                 }
                 _portBPullUpMode = value;
             }
@@ -123,7 +124,7 @@ namespace Kingsland.PiFaceSharp.Spi
         {
             if(pin > 7)
             {
-                throw new System.ArgumentOutOfRangeException("pin", "pin must be in the range 0-7");
+                throw new ArgumentOutOfRangeException("pin", "pin must be in the range 0-7");
             }
             var mask = (byte)(1 << pin);
             var state = this.SpiDevice.ReadByte((byte)PiFaceRegisterAddress.GPIOA);
@@ -153,7 +154,7 @@ namespace Kingsland.PiFaceSharp.Spi
         {
             if (pin > 7)
             {
-                throw new System.ArgumentOutOfRangeException("pin", "pin must be in the range 0-7");
+                throw new ArgumentOutOfRangeException("pin", "pin must be in the range 0-7");
             }
             var mask = (byte)(1 << pin);
             if (enabled)
@@ -188,7 +189,7 @@ namespace Kingsland.PiFaceSharp.Spi
         {
             if (pin > 7)
             {
-                throw new System.ArgumentOutOfRangeException("pin", "pin must be in the range 0-7");
+                throw new ArgumentOutOfRangeException("pin", "pin must be in the range 0-7");
             }
             var mask = (byte)(1 << pin);
             var state = this.SpiDevice.ReadByte((byte)PiFaceRegisterAddress.GPIOB);
@@ -225,7 +226,7 @@ namespace Kingsland.PiFaceSharp.Spi
         /// </remarks>
         public void SetInputPinState(byte pin, bool enabled)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -239,7 +240,7 @@ namespace Kingsland.PiFaceSharp.Spi
         /// </remarks>
         public void SetInputPinStates(byte bitMask)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         #endregion
