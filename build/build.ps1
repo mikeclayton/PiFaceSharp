@@ -31,14 +31,14 @@ foreach( $filename in $filenames )
 Set-PowerShellHostWidth -Width 500;
 
 
-$solution     = [System.IO.Path]::Combine($rootFolder, "src\Kingsland.PiFaceSharp.sln");
+$solution       = [System.IO.Path]::Combine($rootFolder, "src\Kingsland.PiFaceSharp.sln");
 $nunitRunners   = [System.IO.Path]::Combine($rootFolder, "src\packages\NUnit.Runners.2.6.4");
 $testAssemblies = @(
                       [System.IO.Path]::Combine($rootFolder, "src\Kingsland.PiFaceSharp.UnitTests\bin\Debug\Kingsland.PiFaceSharp.UnitTests.dll");
                   );
 $nuspec = [System.IO.Path]::Combine($rootFolder, "Kingsland.PiFaceSharp.nuspec");
-$nuget = [System.IO.Path]::Combine($rootFolder, "packages\NuGet.CommandLine.2.8.6\tools\NuGet.exe");
-$nupkg = [System.IO.Path]::Combine($rootFolder, "Kingsland.PiFaceSharp." + $BuildNumber + ".nupkg");
+$nuget  = [System.IO.Path]::Combine($rootFolder, "src\packages\NuGet.CommandLine.2.8.6\tools\NuGet.exe");
+$nupkg  = [System.IO.Path]::Combine($rootFolder, "Kingsland.PiFaceSharp." + $BuildNumber + ".nupkg");
 
 
 if( Test-IsTeamCityBuild )
