@@ -1,4 +1,5 @@
-﻿using Kingsland.PiFaceSharp.Spi.Native;
+﻿using Kingsland.PiFaceSharp.Isr;
+using Kingsland.PiFaceSharp.Spi.Native;
 using System;
 using System.ComponentModel;
 
@@ -22,6 +23,13 @@ namespace Kingsland.PiFaceSharp.Spi
         #region Fields
 
         private PiFacePullUpMode _portBPullUpMode;
+        private GpioEdgeDetector _EdgeDetector;
+
+        #endregion
+
+        #region Events
+
+        public event EventHandler<InputsChangedEventArgs> InputsChanged;
 
         #endregion
 
@@ -60,6 +68,91 @@ namespace Kingsland.PiFaceSharp.Spi
             this.Initialize();
         }
 
+        /// <summary>
+        /// Creates a new PiFace object using the default device name and registers an interrupt service routine on PiFace inputs.
+        /// </summary>
+        /// <param name="enableInputInterruptMask">
+        /// Byte mask for input pins to enable interrupt.
+        /// </param>
+        /// <param name="interruptGpioPin">
+        /// Raspberry Pi GPIO Pin which is connected to PiFace interrupt signaling pin (default 25).
+        /// </param>
+        /// <param name="edge">
+        /// <see cref="EdgeDetectionMode"/> (rising/falling/both) specifies which signal edge should be detected (default falling).
+        /// </param>
+        /// <remarks>
+        /// Interrupt handling is only enabled if enableInputInterruptMask is > 0 and edge is not None.
+        /// interruptGpioPin must be preconfigured as an input on Raspberry Pi GPIO.
+        /// </remarks>
+        public PiFaceDevice(byte enableInputInterruptMask, byte interruptGpioPin = 25, EdgeDetectionMode edge = EdgeDetectionMode.falling)
+            : this()
+        {
+            if (enableInputInterruptMask > 0 && edge != EdgeDetectionMode.none)
+            {
+                InitializeEdgeDetection(enableInputInterruptMask);
+                this.EdgeDetector = new GpioEdgeDetector(interruptGpioPin, edge);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new PiFace object using the specified device name and registers an interrupt service routine on PiFace inputs.
+        /// </summary>
+        /// <param name="deviceName">
+        /// The name of the device to connect to.
+        /// </param>
+        /// <param name="enableInputInterruptMask">
+        /// Byte mask for input pins to enable interrupt.
+        /// </param>
+        /// <param name="interruptGpioPin">
+        /// Raspberry Pi GPIO Pin which is connected to PiFace interrupt signaling pin (default 25).
+        /// </param>
+        /// <param name="edge">
+        /// <see cref="EdgeDetectionMode"/> (rising/falling/both) specifies which signal edge should be detected (default falling).
+        /// </param>
+        /// <remarks>
+        /// Interrupt handling is only enabled if enableInputInterruptMask is > 0 and edge is not None.
+        /// interruptGpioPin must be preconfigured as an input on Raspberry Pi GPIO.
+        /// </remarks>
+        public PiFaceDevice(string deviceName, byte enableInputInterruptMask, byte interruptGpioPin = 25, EdgeDetectionMode edge = EdgeDetectionMode.falling)
+            : this(deviceName)
+        {
+            if (enableInputInterruptMask > 0 && edge != EdgeDetectionMode.none)
+            {
+                InitializeEdgeDetection(enableInputInterruptMask);
+                this.EdgeDetector = new GpioEdgeDetector(interruptGpioPin, edge);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new PiFace object using the specified spi device and registers an interrupt service routine on PiFace inputs.
+        /// </summary>
+        /// <param name="spiDevice">
+        /// The spi device to connect to.
+        /// </param>
+        /// <param name="enableInputInterruptMask">
+        /// Byte mask for input pins to enable interrupt.
+        /// </param>
+        /// <param name="interruptGpioPin">
+        /// Raspberry Pi GPIO Pin which is connected to PiFace interrupt signaling pin (default 25).
+        /// </param>
+        /// <param name="edge">
+        /// <see cref="EdgeDetectionMode"/> (rising/falling/both) specifies which signal edge should be detected (default falling).
+        /// </param>
+        /// <remarks>
+        /// Interrupt handling is only enabled if enableInputInterruptMask is > 0 and edge is not None.
+        /// interruptGpioPin must be preconfigured as an input on Raspberry Pi GPIO.
+        /// </remarks>
+        [Browsable(false)]
+        public PiFaceDevice(ISpiDevice spiDevice, byte enableInputInterruptMask, byte interruptGpioPin = 25, EdgeDetectionMode edge = EdgeDetectionMode.falling)
+            : this(spiDevice)
+        {
+            if (enableInputInterruptMask > 0 && edge != EdgeDetectionMode.none)
+            {
+                InitializeEdgeDetection(enableInputInterruptMask);
+                this.EdgeDetector = new GpioEdgeDetector(interruptGpioPin, edge);
+            }
+        }
+
         #endregion
 
         #region Properties
@@ -71,6 +164,29 @@ namespace Kingsland.PiFaceSharp.Spi
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Gets or sets an GpioEdgeDetector to detect 
+        /// </summary>
+        private GpioEdgeDetector EdgeDetector
+        {
+            get
+            {
+                return _EdgeDetector;
+            }
+            set
+            {
+                if (_EdgeDetector != null)
+                {
+                    _EdgeDetector.InterruptOccured -= _EdgeDetector_InterruptOccured;
+                }
+                _EdgeDetector = value;
+                if (value != null)
+                {
+                    value.InterruptOccured += _EdgeDetector_InterruptOccured;
+                }
+            }
         }
 
         /// <summary>
@@ -96,7 +212,7 @@ namespace Kingsland.PiFaceSharp.Spi
             }
             set
             {
-                switch(value)
+                switch (value)
                 {
                     case PiFacePullUpMode.PullUp:
                         this.SpiDevice.WriteByte((byte)PiFaceRegisterAddress.GPPUB, 0xFF);
@@ -112,7 +228,7 @@ namespace Kingsland.PiFaceSharp.Spi
         }
 
         #endregion
-        
+
         #region Pin State Methods
 
         /// <summary>
@@ -122,7 +238,7 @@ namespace Kingsland.PiFaceSharp.Spi
         /// <returns></returns>
         public bool GetOutputPinState(byte pin)
         {
-            if(pin > 7)
+            if (pin > 7)
             {
                 throw new ArgumentOutOfRangeException("pin", "pin must be in the range 0-7");
             }
@@ -242,6 +358,60 @@ namespace Kingsland.PiFaceSharp.Spi
         {
             throw new NotImplementedException();
         }
+        #endregion
+
+        #region Interrupt Methods
+
+        /// <summary>
+        /// Enables the Interrupts on the sepcified PiFace input pins.
+        /// </summary>
+        /// <param name="bitMask">Byte mask to enable interrupt on pins.</param>
+        private void SetInputInterrupts(byte bitMask)
+        {
+            this.SpiDevice.WriteByte((byte)PiFaceRegisterAddress.GPINTENB, bitMask);
+        }
+
+        /// <summary>
+        /// Gets the Interrupt enabled states for PiFace input pins.
+        /// </summary>
+        /// <returns>Byte mask with interrupt enabled input pins.</returns>
+        private byte GetInputInterrupts()
+        {
+            return this.SpiDevice.ReadByte((byte)PiFaceRegisterAddress.GPINTENB);
+        }
+
+        /// <summary>
+        /// Gets the input interrupt latch.
+        /// </summary>
+        /// <returns>Byte mask with input pins that caused the interrupt.</returns>
+        private byte GetInputInterruptFlags()
+        {
+            return this.SpiDevice.ReadByte((byte)PiFaceRegisterAddress.INTFB);
+        }
+
+        private void _EdgeDetector_InterruptOccured(object sender, EventArgs e)
+        {
+            // read Interrupt latch (byte mask which pins caused the interrupt)
+            // and current pin states.
+            // Important to reset the interrupt flags on PiFace and Raspberry Pi!
+            byte latch = GetInputInterruptFlags();
+            byte currentStates = GetInputPinStates();
+            OnInputStatesChanged(latch, currentStates);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="InputsChanged"/> event.
+        /// </summary>
+        /// <param name="InterruptLatch">Byte mask specifying which pin caused the interrupt.</param>
+        /// <param name="InputPinStates">Byte mask specifying the pin states at interrupt.</param>
+        private void OnInputStatesChanged(byte InterruptLatch, byte InputPinStates)
+        {
+            if (InputsChanged != null)
+            {
+                InputsChangedEventArgs ie = new InputsChangedEventArgs(InterruptLatch, InputPinStates);
+                InputsChanged(this, ie);
+            }
+        }
 
         #endregion
 
@@ -274,6 +444,12 @@ namespace Kingsland.PiFaceSharp.Spi
             this.PortBPullUpMode = PiFacePullUpMode.PullUp; // set pull up mode on input pins
             this.SetOutputPinStates(0);
             return 0;
+        }
+
+        private void InitializeEdgeDetection(byte enableInputInterruptMask)
+        {
+            // set PiFace Interrupt on all inputs
+            SetInputInterrupts(enableInputInterruptMask);
         }
 
         #endregion
