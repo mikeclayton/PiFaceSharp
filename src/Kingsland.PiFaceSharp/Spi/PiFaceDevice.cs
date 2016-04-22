@@ -10,7 +10,7 @@ namespace Kingsland.PiFaceSharp.Spi
     /// Implements a wrapper around a physical PiFace device attached to a Raspberry Pi.
     /// </summary>
     /// <see cref="https://github.com/WiringPi/WiringPi/blob/master/wiringPi/wiringPiFace.c"/>
-    public sealed class PiFaceDevice : IISRPiFaceDevice
+    public sealed class PiFaceDevice : IISRPiFaceDevice, IDisposable
     {
 
         #region Constants
@@ -462,6 +462,64 @@ namespace Kingsland.PiFaceSharp.Spi
 
         #endregion
 
+        #region "IDisposable implementation"
+
+        private bool disposed = false;
+
+        void IDisposable.Dispose()
+        {
+            Dispose(true);
+            // This object will be cleaned up by the Dispose method. 
+            // Therefore, you should call GC.SupressFinalize to 
+            // take this object off the finalization queue 
+            // and prevent finalization code for this object 
+            // from executing a second time.
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            // Check to see if Dispose has already been called. 
+            if (!this.disposed)
+            {
+                // If disposing equals true, dispose all managed 
+                // and unmanaged resources. 
+                if (disposing)
+                {
+                    // Dispose managed resources.
+                    if (this._EdgeDetector != null)
+                    {
+                        try
+                        {
+                            this.SetInputInterrupts(0);
+                            ((IDisposable)this._EdgeDetector).Dispose();
+                        }
+                        finally
+                        {
+                            this._EdgeDetector = null;
+                        }
+                    }
+
+                    if (this.SpiDevice != null)
+                    {
+                        try
+                        {
+                            this.SetOutputPinStates(0);
+                            this.SpiDevice.Close();
+                        }
+                        finally
+                        {
+                            this.SpiDevice = null;
+                        }
+                    }
+                }
+
+                // Note disposing has been done.
+                disposed = true;
+            }
+        }
+
+        #endregion
     }
 
 }

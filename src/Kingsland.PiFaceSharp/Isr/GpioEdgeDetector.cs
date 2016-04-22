@@ -9,12 +9,13 @@ using System.Diagnostics;
 
 namespace Kingsland.PiFaceSharp.Isr
 {
-    public class GpioEdgeDetector : IDisposable
+    public sealed class GpioEdgeDetector : IDisposable
     {
 
         public event EventHandler InterruptOccured;
 
         private String deviceName;
+        private byte pin;
         private int pollTimeout = -1;
         private int deviceHandle = 0;
         private System.Threading.CancellationTokenSource cancelTokenSource;
@@ -29,20 +30,12 @@ namespace Kingsland.PiFaceSharp.Isr
 
         public GpioEdgeDetector(byte pin, EdgeDetectionMode edge, int pollTimeout = -1)
         {
+            this.pin = pin;
             this.deviceName = String.Format("/sys/class/gpio/gpio{0}/value", pin);
             this.pollTimeout = pollTimeout;
 
-            // set edge detection and export pin via gpio command
-            Process proc = new Process();
-            proc.EnableRaisingEvents = false;
-            proc.StartInfo.FileName = "gpio";
-            proc.StartInfo.Arguments = String.Format("edge {0} {1}", pin, edge.ToString());
-            proc.Start();
-            proc.WaitForExit();
-            if (proc.ExitCode != 0)
-            {
-                throw new IOException("could not set gpio edge detection - error {0}.", proc.ExitCode);
-            }
+            // enable edge detection 
+            setEdgeDetection(pin, edge);
 
             var result = FCntl.open(this.deviceName, FCntl.O_RDONLY);
             if (result < 0)
@@ -61,6 +54,21 @@ namespace Kingsland.PiFaceSharp.Isr
             p.deviceHandle = this.deviceHandle;
             p.pollTimeout = this.pollTimeout;
             Task.Factory.StartNew(new Action<Object>(pollInterrupt), p, cancelTokenSource.Token);
+        }
+
+        private void setEdgeDetection(byte pin, EdgeDetectionMode edge)
+        {
+            // set edge detection and export pin via gpio command
+            Process proc = new Process();
+            proc.EnableRaisingEvents = false;
+            proc.StartInfo.FileName = "gpio";
+            proc.StartInfo.Arguments = String.Format("edge {0} {1}", pin, edge.ToString());
+            proc.Start();
+            proc.WaitForExit();
+            if (proc.ExitCode != 0)
+            {
+                throw new IOException("could not set gpio edge detection - error {0}.", proc.ExitCode);
+            }
         }
 
         private void readBufs(int handle)
@@ -125,37 +133,60 @@ namespace Kingsland.PiFaceSharp.Isr
             return false;
         }
 
+        #region "IDisposable implementation"
 
-        #region IDisposable Interface
+        private bool disposed = false;
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
+            // This object will be cleaned up by the Dispose method. 
+            // Therefore, you should call GC.SupressFinalize to 
+            // take this object off the finalization queue 
+            // and prevent finalization code for this object 
+            // from executing a second time.
             GC.SuppressFinalize(this);
         }
 
-        private void Dispose(Boolean disposing)
+        private void Dispose(bool disposing)
         {
-            if (cancelTokenSource != null)
+            // Check to see if Dispose has already been called. 
+            if (!this.disposed)
             {
-                cancelTokenSource.Cancel();
-                if (this.pollTimeout >= 0)
+                // If disposing equals true, dispose all managed 
+                // and unmanaged resources. 
+                if (disposing)
                 {
-                    // only wait for task to finish if poll timeout is not infinite
-                    cancelTokenSource.Token.WaitHandle.WaitOne();
-                }                
-                cancelTokenSource = null;
-            }
-            if (this.deviceHandle != 0)
-            {
-                try
-                {
-                    FCntl.close(this.deviceHandle);
+                    // Dispose managed resources.
+                    if (cancelTokenSource != null)
+                    {
+                        cancelTokenSource.Cancel();
+                        if (this.pollTimeout >= 0)
+                        {
+                            // only wait for task to finish if poll timeout is not infinite
+                            cancelTokenSource.Token.WaitHandle.WaitOne();
+                        }
+                        cancelTokenSource = null;
+                    }
+                    if (this.deviceHandle != 0)
+                    {
+                        try
+                        {
+                            FCntl.close(this.deviceHandle);
+                        }
+                        finally
+                        {
+                            this.deviceHandle = 0;
+                        }
+                    }
+                    if (this.pin > 0)
+                    {
+                        setEdgeDetection(this.pin, EdgeDetectionMode.none);
+                    }                    
                 }
-                finally
-                {
-                    this.deviceHandle = 0;
-                }
+
+                // Note disposing has been done.
+                disposed = true;
             }
         }
 
