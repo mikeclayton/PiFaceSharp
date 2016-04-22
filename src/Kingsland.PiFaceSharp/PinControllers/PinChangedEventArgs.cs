@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Kingsland.PiFaceSharp.PinControllers
 {
-    class PinChangedEventArgs : EventArgs
+    public class PinChangedEventArgs : EventArgs
     {
 
         private byte _pin;

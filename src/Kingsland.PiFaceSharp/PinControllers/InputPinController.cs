@@ -11,7 +11,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
     /// <remarks>
     /// PiFace device must be ISR enabled.
     /// </remarks>
-    class InputPinController : PinControllerBase
+    public class InputPinController : PinControllerBase
     {
 
         #region fields
@@ -54,7 +54,8 @@ namespace Kingsland.PiFaceSharp.PinControllers
             }
             this._inputPin = inputPin;
             this._gateDuration = gateDuration;
-            this.PiFace.InputsChanged += PiFace_InputsChanged;
+            this._state = piface.GetInputPinState(inputPin);
+            piface.InputsChanged += PiFace_InputsChanged;
         }
 
         #endregion
@@ -112,14 +113,16 @@ namespace Kingsland.PiFaceSharp.PinControllers
         private void PiFace_InputsChanged(object sender, InputsChangedEventArgs e)
         {
             int pinMask = (1 << this.InputPin);
-            bool state = Convert.ToBoolean(e.InputPinStates & pinMask);
+            bool state = ((e.InputPinStates & pinMask) == 0);
             DateTime now = DateTime.Now;
-            // if this pin caused interrupt or pin value changed
-            if (((e.InterruptLatch & pinMask) == pinMask || state != this.State) &&
+
+            // if state is changed and time since last change is greater than GateDuration
+            if (state != this.State &&
                 now.Subtract(_lastChangeAt).TotalMilliseconds >= this.GateDuration)
             {
                 this.State = state;
                 _lastChangeAt = now;
+                // raise event
                 OnPinChanged(state);
             }
         }
