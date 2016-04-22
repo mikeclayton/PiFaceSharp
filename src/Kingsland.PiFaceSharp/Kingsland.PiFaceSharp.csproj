@@ -57,11 +57,14 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IISRPiFaceDevice.cs" />
     <Compile Include="Isr\EdgeDetectionMode.cs" />
     <Compile Include="Isr\GpioEdgeDetector.cs" />
     <Compile Include="PiFaceIoConfigFlags.cs" />
     <Compile Include="PiFacePullUpMode.cs" />
     <Compile Include="PiFaceRegisterAddress.cs" />
+    <Compile Include="PinControllers\InputPinController.cs" />
+    <Compile Include="PinControllers\PinChangedEventArgs.cs" />
     <Compile Include="Remote\MessageReceivedEventArgs.cs" />
     <Compile Include="Remote\MessageSentEventArgs.cs" />
     <Compile Include="Remote\PiFaceTcpClient.cs" />

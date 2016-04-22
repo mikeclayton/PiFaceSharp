@@ -10,7 +10,7 @@ namespace Kingsland.PiFaceSharp.Spi
     /// Implements a wrapper around a physical PiFace device attached to a Raspberry Pi.
     /// </summary>
     /// <see cref="https://github.com/WiringPi/WiringPi/blob/master/wiringPi/wiringPiFace.c"/>
-    public sealed class PiFaceDevice : IPiFaceDevice
+    public sealed class PiFaceDevice : IISRPiFaceDevice
     {
 
         #region Constants
@@ -224,6 +224,14 @@ namespace Kingsland.PiFaceSharp.Spi
                         throw new ArgumentOutOfRangeException("value");
                 }
                 _portBPullUpMode = value;
+            }
+        }
+
+        public bool IsISREnabled
+        {
+            get
+            {
+                return (_EdgeDetector != null);
             }
         }
 
