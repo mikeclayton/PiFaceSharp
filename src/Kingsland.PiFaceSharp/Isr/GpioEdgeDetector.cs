@@ -37,7 +37,6 @@ namespace Kingsland.PiFaceSharp.Isr
             proc.EnableRaisingEvents = false;
             proc.StartInfo.FileName = "gpio";
             proc.StartInfo.Arguments = String.Format("edge {0} {1}", pin, edge.ToString());
-            Console.WriteLine("calling gpio with {0}..", proc.StartInfo.Arguments);
             proc.Start();
             proc.WaitForExit();
             if (proc.ExitCode != 0)
