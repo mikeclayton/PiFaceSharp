@@ -62,7 +62,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
 
         #region properties
 
-        public IISRPiFaceDevice PiFace
+        public new IISRPiFaceDevice PiFace
         {
             get
             {
@@ -127,7 +127,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
             }
         }
 
-        protected void OnPinChanged(bool state)
+        protected virtual void OnPinChanged(bool state)
         {
             if (PinChanged != null)
             {

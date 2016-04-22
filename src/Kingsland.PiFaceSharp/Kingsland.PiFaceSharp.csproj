@@ -63,6 +63,8 @@
     <Compile Include="PiFaceIoConfigFlags.cs" />
     <Compile Include="PiFacePullUpMode.cs" />
     <Compile Include="PiFaceRegisterAddress.cs" />
+    <Compile Include="PinControllers\ButtonInputController.cs" />
+    <Compile Include="PinControllers\InputButtonEventArgs.cs" />
     <Compile Include="PinControllers\InputPinController.cs" />
     <Compile Include="PinControllers\PinChangedEventArgs.cs" />
     <Compile Include="Remote\MessageReceivedEventArgs.cs" />
