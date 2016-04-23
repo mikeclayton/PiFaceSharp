@@ -14,6 +14,9 @@ namespace Kingsland.PiFaceSharp.Spi.Native
         [DllImport("libc", EntryPoint = "read", SetLastError = true)]
         public static extern int read(int __fd, [In, Out, MarshalAs(UnmanagedType.SafeArray)] ref byte[] __buf, uint __nbytes);
 
+        [DllImport("libc", EntryPoint = "write", SetLastError = true)]
+        public static extern int write(int __fd, [In, MarshalAs(UnmanagedType.SafeArray)] byte[] __buf, uint __nbytes);
+
         [DllImport("libc", EntryPoint = "lseek", SetLastError = true)]
         public static extern int lseek(int __fd, int __offset, int whence);
 

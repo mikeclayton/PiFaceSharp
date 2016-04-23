@@ -58,16 +58,55 @@ namespace Kingsland.PiFaceSharp.Isr
 
         private void setEdgeDetection(byte pin, EdgeDetectionMode edge)
         {
-            // set edge detection and export pin via gpio command
-            Process proc = new Process();
-            proc.EnableRaisingEvents = false;
-            proc.StartInfo.FileName = "gpio";
-            proc.StartInfo.Arguments = String.Format("edge {0} {1}", pin, edge.ToString());
-            proc.Start();
-            proc.WaitForExit();
-            if (proc.ExitCode != 0)
+            if (edge == EdgeDetectionMode.none)
             {
-                throw new IOException("could not set gpio edge detection - error {0}.", proc.ExitCode);
+                // open file handle to gpio export
+                var fd = FCntl.open("/sys/class/gpio/unexport", FCntl.O_WRONLY);
+                if (fd < 0)
+                {
+                    throw new IOException(string.Format("Failed to open gpio class - error {0}.", fd));
+                }
+                // write pin number to export gpio pin
+                // (don't check for errors because it raises if already unexported..)
+                var buf = System.Text.UTF8Encoding.UTF8.GetBytes(pin.ToString());
+                UniStd.write(fd, buf, Convert.ToUInt32(buf.Length));
+                FCntl.close(fd);
+            }
+            else
+            {
+                // open file handle to gpio export
+                var fd = FCntl.open("/sys/class/gpio/export", FCntl.O_WRONLY);
+                if (fd < 0)
+                {
+                    throw new IOException(string.Format("Failed to open gpio class - error {0}.", fd));
+                }
+                // write pin number to export gpio pin
+                // (don't check for errors because it raises if already exported..)
+                var buf = System.Text.UTF8Encoding.UTF8.GetBytes(pin.ToString());
+                UniStd.write(fd, buf, Convert.ToUInt32(buf.Length));
+                FCntl.close(fd);
+
+                // open file handle to gpio direction
+                fd = FCntl.open(String.Format("/sys/class/gpio/gpio{0}/direction", pin), FCntl.O_WRONLY);
+                if (fd < 0)
+                {
+                    throw new IOException(string.Format("Failed to open gpio direction - error {0}.", fd));
+                }
+                // write pin number to export gpio direction
+                buf = System.Text.UTF8Encoding.UTF8.GetBytes("in");
+                UniStd.write(fd, buf, Convert.ToUInt32(buf.Length));
+                FCntl.close(fd);
+
+                // open file handle to gpio edge
+                fd = FCntl.open(String.Format("/sys/class/gpio/gpio{0}/edge", pin), FCntl.O_WRONLY);
+                if (fd < 0)
+                {
+                    throw new IOException(string.Format("Failed to open gpio edge - error {0}.", fd));
+                }
+                // write pin number to export gpio direction
+                buf = System.Text.UTF8Encoding.UTF8.GetBytes(edge.ToString());
+                UniStd.write(fd, buf, Convert.ToUInt32(buf.Length));
+                FCntl.close(fd);
             }
         }
 
