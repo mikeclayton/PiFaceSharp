@@ -68,7 +68,7 @@ namespace Kingsland.PiFaceSharp.Isr
                 }
                 // write pin number to export gpio pin
                 // (don't check for errors because it raises if already unexported..)
-                var buf = System.Text.UTF8Encoding.UTF8.GetBytes(pin.ToString());
+                var buf = System.Text.UTF8Encoding.UTF8.GetBytes(pin.ToString() + Environment.NewLine);
                 UniStd.write(fd, buf, Convert.ToUInt32(buf.Length));
                 FCntl.close(fd);
             }
@@ -82,9 +82,12 @@ namespace Kingsland.PiFaceSharp.Isr
                 }
                 // write pin number to export gpio pin
                 // (don't check for errors because it raises if already exported..)
-                var buf = System.Text.UTF8Encoding.UTF8.GetBytes(pin.ToString());
+                var buf = System.Text.UTF8Encoding.UTF8.GetBytes(pin.ToString() + Environment.NewLine);
                 UniStd.write(fd, buf, Convert.ToUInt32(buf.Length));
                 FCntl.close(fd);
+
+                // wait short delay for export to complete
+                System.Threading.Thread.Sleep(50);
 
                 // open file handle to gpio direction
                 fd = FCntl.open(String.Format("/sys/class/gpio/gpio{0}/direction", pin), FCntl.O_WRONLY);
@@ -93,7 +96,7 @@ namespace Kingsland.PiFaceSharp.Isr
                     throw new IOException(string.Format("Failed to open gpio direction - error {0}.", fd));
                 }
                 // write pin number to export gpio direction
-                buf = System.Text.UTF8Encoding.UTF8.GetBytes("in");
+                buf = System.Text.UTF8Encoding.UTF8.GetBytes("in" + Environment.NewLine);
                 UniStd.write(fd, buf, Convert.ToUInt32(buf.Length));
                 FCntl.close(fd);
 
@@ -104,7 +107,7 @@ namespace Kingsland.PiFaceSharp.Isr
                     throw new IOException(string.Format("Failed to open gpio edge - error {0}.", fd));
                 }
                 // write pin number to export gpio direction
-                buf = System.Text.UTF8Encoding.UTF8.GetBytes(edge.ToString());
+                buf = System.Text.UTF8Encoding.UTF8.GetBytes(edge.ToString() + Environment.NewLine);
                 UniStd.write(fd, buf, Convert.ToUInt32(buf.Length));
                 FCntl.close(fd);
             }
