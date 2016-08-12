@@ -122,11 +122,11 @@ namespace Kingsland.PiFaceSharp.PinControllers
         {
             if (this.GroupMode == PinGroupMode.All)
             {
-                return ((currentStates & this.InputPinMask) == 0);
+                return ((currentStates & this.InputPinMask) == this.InputPinMask);
             }
             else
             {
-                return ((currentStates & this.InputPinMask) != this.InputPinMask);
+                return ((currentStates & this.InputPinMask) != 0);
             }
         }
 
