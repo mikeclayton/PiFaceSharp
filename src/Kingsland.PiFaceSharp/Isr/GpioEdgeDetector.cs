@@ -53,7 +53,12 @@ namespace Kingsland.PiFaceSharp.Isr
             p.cancelToken = cancelTokenSource.Token;
             p.deviceHandle = this.deviceHandle;
             p.pollTimeout = this.pollTimeout;
-            Task.Factory.StartNew(new Action<Object>(pollInterrupt), p, cancelTokenSource.Token);
+
+            // TODO: Error Handling!
+            Task.Factory.StartNew(new Action<Object>(pollInterrupt), p, cancelTokenSource.Token).
+                ContinueWith((t) => {
+                    Console.WriteLine(String.Format("GpioEdgeDetector Error: {0}", (t.Exception != null ? t.Exception.ToString() : String.Empty)));
+                }, System.Threading.CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
         }
 
         private void setEdgeDetection(byte pin, EdgeDetectionMode edge)
@@ -134,11 +139,26 @@ namespace Kingsland.PiFaceSharp.Isr
         private void pollInterrupt(Object p)
         {
             pollParams pp = (pollParams)p;
+            int errCnt = 0;
             while (!pp.cancelToken.IsCancellationRequested)
             {
-                if (poll(pp.deviceHandle, pp.pollTimeout))
+                try
                 {
-                    OnInterruptOccured();
+                    if (poll(pp.deviceHandle, pp.pollTimeout))
+                    {
+                        OnInterruptOccured();
+                    }
+                    errCnt = 0;
+                } catch (IOException)
+                {
+                    errCnt++;
+                    if (errCnt > 3)
+                    {
+                        throw;
+                    } else
+                    {
+                        System.Threading.Thread.Sleep(10);
+                    }
                 }
             }
         }
