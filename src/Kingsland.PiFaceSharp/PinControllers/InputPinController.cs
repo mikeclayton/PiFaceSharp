@@ -19,7 +19,7 @@ namespace Kingsland.PiFaceSharp.PinControllers
         private byte _inputPin;
         private bool _state;
         private int _gateDuration;
-        private DateTime _lastChangeAt = DateTime.MinValue;
+        private DateTime _lastChangeToTrueAt = DateTime.MinValue;
 
         #endregion
 
@@ -117,11 +117,19 @@ namespace Kingsland.PiFaceSharp.PinControllers
             DateTime now = DateTime.Now;
 
             // if state is changed and time since last change is greater than GateDuration
-            if (state != this.State &&
-                now.Subtract(_lastChangeAt).TotalMilliseconds >= this.GateDuration)
+            // (store and check GateDuration only on change from state false to true,
+            //  to prevent from stucking in half a cycle..)
+            if (!this.State && state &&
+                now.Subtract(_lastChangeToTrueAt).TotalMilliseconds >= this.GateDuration)
             {
                 this.State = state;
-                _lastChangeAt = now;
+                _lastChangeToTrueAt = now;
+                // raise event
+                OnPinChanged(state);
+            }
+            else if (this.State && !state)
+            {
+                this.State = state;
                 // raise event
                 OnPinChanged(state);
             }
