@@ -43,6 +43,65 @@ for (byte pin = 0; pin < 8; pin++)
 
 See the Kingsland.PiFaceSharp.SampleConsole project for the full source.
 
+Enable Interrupt Listeners
+=======
+The PiFace connects an internal interrupt wire to GPIO25, so changes on
+PiFace inputs can be detected by enabling interrupts on both the PiFace inputs and the Raspberry Pi GPIO25.
+PiFaceSharp does this automatically - just pass the enable interrupt byte mask
+to the constructor overload.
+
+Afterwards one can use some of the new `InputPinController`, `InputPinGroupController` and `ButtonInputController` classes to benefit from pin change detection.
+
+Example (see `ISRSampleConsole` demo project)
+-------
+
+```c#
+class Program
+    {
+        static void Main(string[] args)
+        {
+            // get reference to default piface device with all inputs enabled for ISR
+            var piface = new PiFaceDevice(255);
+
+            var pinDetector = new InputPinController(piface, 0);
+            pinDetector.PinChanged += pinDetector_PinChanged;
+
+            var buttonDetector = new ButtonInputController(piface, 1);
+            buttonDetector.ButtonClicked += buttonDetector_ButtonClicked;
+
+            while (Console.KeyAvailable)
+                Console.ReadKey(true);
+            Console.WriteLine("Detectin changes on PiFace input pin 0 and Button clicks on pin 1. Press <Enter> key to exit..");
+            var ki = Console.ReadKey(true);
+            while (ki.Key != ConsoleKey.Enter)
+            {
+                System.Threading.Thread.Sleep(100);
+                ki = Console.ReadKey(true);
+            }
+        }
+
+        static void buttonDetector_ButtonClicked(object sender, InputButtonEventArgs e)
+        {
+            if (e.IsDoubleClick) {
+                Console.WriteLine("Pin {0} double click", e.Pin);
+            } else if (e.IsHold)
+            {
+                Console.WriteLine("Pin {0} hold", e.Pin);
+            }
+            else
+            {
+                Console.WriteLine("Pin {0} click", e.Pin);
+            }
+        }
+
+        static void pinDetector_PinChanged(object sender, PinChangedEventArgs e)
+        {
+            Console.WriteLine("Pin {0} changed to {1}", e.Pin, e.State);
+        }
+    }
+
+```
+
 
 License
 =======
