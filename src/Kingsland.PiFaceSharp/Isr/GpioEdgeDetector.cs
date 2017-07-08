@@ -23,12 +23,10 @@ namespace Kingsland.PiFaceSharp.Isr
 
         private struct pollParams
         {
-            public int deviceHandle;
-            public int pollTimeout;
             public System.Threading.CancellationToken cancelToken;
         }
 
-        public GpioEdgeDetector(byte pin, EdgeDetectionMode edge, int pollTimeout = -1)
+        public GpioEdgeDetector(byte pin, EdgeDetectionMode edge, int pollTimeout = 1000)
         {
             this.pin = pin;
             this.deviceName = String.Format("/sys/class/gpio/gpio{0}/value", pin);
@@ -37,6 +35,37 @@ namespace Kingsland.PiFaceSharp.Isr
             // enable edge detection 
             setEdgeDetection(pin, edge);
 
+            // open gpio file handle
+            openEdgeDetectionFileHandle();
+
+            // start async polling task
+            cancelTokenSource = new System.Threading.CancellationTokenSource();
+            pollParams p = new pollParams();
+            p.cancelToken = cancelTokenSource.Token;
+
+            // TODO: Error Handling!
+            Task.Factory.StartNew(new Action<Object>(pollInterrupt), p, cancelTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default).
+                ContinueWith((t) => {
+                    Console.WriteLine(String.Format("GpioEdgeDetector Error: {0}", (t.Exception != null ? t.Exception.ToString() : String.Empty)));
+                }, System.Threading.CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
+        }
+
+        private void openEdgeDetectionFileHandle()
+        {
+            // close Handle if open
+            if (this.deviceHandle != 0)
+            {
+                try
+                {
+                    FCntl.close(this.deviceHandle);
+                }
+                finally
+                {
+                    this.deviceHandle = 0;
+                }
+            }
+
+            // open Handle readonly
             var result = FCntl.open(this.deviceName, FCntl.O_RDONLY);
             if (result < 0)
             {
@@ -46,19 +75,6 @@ namespace Kingsland.PiFaceSharp.Isr
 
             // clear pending interrupts
             readBufs(this.deviceHandle);
-
-            // start async polling task
-            cancelTokenSource = new System.Threading.CancellationTokenSource();
-            pollParams p = new pollParams();
-            p.cancelToken = cancelTokenSource.Token;
-            p.deviceHandle = this.deviceHandle;
-            p.pollTimeout = this.pollTimeout;
-
-            // TODO: Error Handling!
-            Task.Factory.StartNew(new Action<Object>(pollInterrupt), p, cancelTokenSource.Token).
-                ContinueWith((t) => {
-                    Console.WriteLine(String.Format("GpioEdgeDetector Error: {0}", (t.Exception != null ? t.Exception.ToString() : String.Empty)));
-                }, System.Threading.CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
         }
 
         private void setEdgeDetection(byte pin, EdgeDetectionMode edge)
@@ -144,7 +160,7 @@ namespace Kingsland.PiFaceSharp.Isr
             {
                 try
                 {
-                    if (poll(pp.deviceHandle, pp.pollTimeout))
+                    if (poll(this.deviceHandle, this.pollTimeout))
                     {
                         OnInterruptOccured();
                     }
@@ -157,7 +173,7 @@ namespace Kingsland.PiFaceSharp.Isr
                         throw;
                     } else
                     {
-                        System.Threading.Thread.Sleep(10);
+                        System.Threading.Thread.Sleep(10); // * (int)Math.Pow(10, errCnt-1));
                     }
                 }
             }
@@ -183,7 +199,8 @@ namespace Kingsland.PiFaceSharp.Isr
             int result = Mono.Unix.Native.Syscall.poll(pollFDs, timeout);
             if (result < 0)
             {
-                throw new IOException(string.Format("Failed to poll - error {0}.", result));
+                var errNr = Mono.Unix.Native.Syscall.GetLastError();
+                throw new IOException(string.Format("Failed to poll - error {0} (revents: {1}).", errNr.ToString(), pollFDs[0].revents));
             }
             else if (result > 0)
             {
