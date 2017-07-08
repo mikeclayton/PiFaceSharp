@@ -220,7 +220,7 @@ namespace Kingsland.PiFaceSharp.Spi
                 throw new InvalidOperationException(string.Format("Failed to set mode - error {0}", result));
             }
             // every tx results in an rx, so we have to read after every write)
-            result = IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_WR_MODE, ref value);
+            result = IoCtl.ioctl(this.DeviceHandle, SpiDev.SPI_IOC_RD_MODE, ref value);
             if (result < 0)
             {
                 throw new InvalidOperationException(string.Format("Failed to get mode - error {0}", result));
