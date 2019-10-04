@@ -15,16 +15,23 @@ namespace Kingsland.PiFaceSharp.Spi
         private IntPtr _txBufferPtr = IntPtr.Zero;
         private IntPtr _rxBufferPtr = IntPtr.Zero;
 
+        private byte SPI_SLAVE_ID = 0x40;
+        private const byte SPI_SLAVE_ADDR = 0;
+        private const byte SPI_SLAVE_MSG_END = 0x0E;
+        private const byte SPI_SLAVE_READ = 1;
+        private const byte SPI_SLAVE_WRITE = 0;
+
         #endregion
 
         #region Constructors
 
-        public HardwareSpiDevice(uint bus, uint chipSelect, string deviceName)
+        public HardwareSpiDevice(uint bus, uint chipSelect, string deviceName, byte slaveId = 0x40)
         {
             this.Bus = bus;
             this.ChipSelect = chipSelect;
             this.SpiDelay = 0;
             this.DeviceName = deviceName;
+            this.SPI_SLAVE_ID = slaveId;
         }
 
         ~HardwareSpiDevice()
@@ -111,9 +118,6 @@ namespace Kingsland.PiFaceSharp.Spi
 
         #region ISpiDevice Interface
 
-        private const byte CMD_WRITE = 0x40;
-        private const byte CMD_READ = 0x41;
-
         public void Open(int flags)
         {
             if (this.DeviceHandle != 0)
@@ -151,8 +155,10 @@ namespace Kingsland.PiFaceSharp.Spi
         /// <returns></returns>
         public byte ReadByte(byte address)
         {
+            byte buffer = SPI_SLAVE_ID;
+            buffer |= (SPI_SLAVE_ADDR << 1 & SPI_SLAVE_MSG_END) | SPI_SLAVE_READ;
             //Console.WriteLine("    spiBufTx = {0} {1} {2}", CMD_READ, address, 0);
-            Marshal.Copy(new byte[] { CMD_READ, address, 0 }, 0, this._txBufferPtr, HardwareSpiDevice.TxRxBufferLength);
+            Marshal.Copy(new byte[] { buffer, address, 0 }, 0, this._txBufferPtr, HardwareSpiDevice.TxRxBufferLength);
             Marshal.Copy(new byte[] { 0, 0, 0 }, 0, this._rxBufferPtr, HardwareSpiDevice.TxRxBufferLength);
             // build the command
             var cmd = SpiDev.SPI_IOC_MESSAGE(1);
@@ -183,12 +189,14 @@ namespace Kingsland.PiFaceSharp.Spi
 
         /// <summary>
         /// Write a value to the SPI bus.
-        /// </summary>
+        /// </summary><
         /// <param name="address"></param>
         /// <param name="value"></param>
         public void WriteByte(byte address, byte value)
         {
-            Marshal.Copy(new byte[] { CMD_WRITE, address, value }, 0, this._txBufferPtr, HardwareSpiDevice.TxRxBufferLength);
+            byte buffer = SPI_SLAVE_ID;
+            buffer |= (SPI_SLAVE_ADDR << 1 & SPI_SLAVE_MSG_END) | SPI_SLAVE_WRITE;
+            Marshal.Copy(new byte[] { buffer, address, value }, 0, this._txBufferPtr, HardwareSpiDevice.TxRxBufferLength);
             Marshal.Copy(new byte[] { 0, 0, 0 }, 0, this._rxBufferPtr, HardwareSpiDevice.TxRxBufferLength);
             // build the command
             var cmd = SpiDev.SPI_IOC_MESSAGE(1);
