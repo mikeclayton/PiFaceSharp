@@ -14,7 +14,6 @@ namespace Kingsland.PiFaceSharp.Spi
         private const int TxRxBufferLength = 3;
         private IntPtr _txBufferPtr = IntPtr.Zero;
         private IntPtr _rxBufferPtr = IntPtr.Zero;
-
         private byte SPI_SLAVE_ID = 0x40;
         private const byte SPI_SLAVE_ADDR = 0;
         private const byte SPI_SLAVE_MSG_END = 0x0E;
@@ -24,7 +23,20 @@ namespace Kingsland.PiFaceSharp.Spi
         #endregion
 
         #region Constructors
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bus"></param>
+        /// <param name="chipSelect"></param>
+        /// <param name="deviceName"></param>
+        /// <param name="slaveId">
+        /// PiFace addresses:
+        /// <para>1st => 0x40</para>
+        /// <para>2nd => 0x42</para>
+        /// <para>3rd => 0x44</para>
+        /// <para>4th => 0x46</para>
+        /// <para>NOTE: Address must be "selected" on PiFace with the address jumpers</para>
+        ///</param>
         public HardwareSpiDevice(uint bus, uint chipSelect, string deviceName, byte slaveId = 0x40)
         {
             this.Bus = bus;
@@ -93,7 +105,6 @@ namespace Kingsland.PiFaceSharp.Spi
         #endregion
 
         #region Methods
-
         private void InitTxRxBuffers()
         {
             // create unmanaged transmit and receive buffers
